@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>差假工時計算器</title>
+
+  <!-- 避免分享連結/預覽抓取到舊版快取字眼 -->
+  <meta name="description" content="差假工時計算器 - 彈性工時與差假系統轉換工具">
+  <meta property="og:title" content="差假工時計算器">
+  <meta property="og:description" content="差假工時計算器 - 彈性工時與差假系統轉換工具">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cyfcf.github.io/flextime/">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -285,7 +293,7 @@
 
     </main>
 
-    <!-- 最下方主選單：依指定順序排列 6 個情境 -->
+    <!-- 最下方主選單 -->
     <nav class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
