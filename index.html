@@ -225,30 +225,27 @@
         <span>{{ result.warning }}</span>
       </div>
 
-      <!-- 雙系統計算成果對照卡 (統一卡片視覺風格) -->
+      <!-- 雙系統計算成果對照卡 (新舊系統畫面格式完全對稱一致) -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
         
-        <!-- 新系統區塊（與舊系統卡片結構一致） -->
-        <div class="p-4 rounded-2xl bg-indigo-500/10 border-2 border-indigo-400/40 relative">
+        <!-- 新系統區塊（版面格式與舊系統完全一致，採用天藍/靛色區分） -->
+        <div class="p-4 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-black text-indigo-800 dark:text-indigo-400">新系統【彈性班】</span>
-            <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">
-              {{ leaveType === 'FULL_DAY' ? '彈性工時' : (result.hours > 0 ? result.hours + ' 小時' : '正常出勤') }}
+            <span class="text-xs font-black text-sky-800 dark:text-sky-400">新系統【彈性班】</span>
+            <span class="text-xs font-bold text-sky-700 dark:text-sky-300">
+              {{ leaveType === 'FULL_DAY' ? '彈性上下班' : '彈性工時計算' }}
             </span>
           </div>
-          <div class="text-2xl font-black font-mono text-indigo-950 dark:text-indigo-200 my-1">
+          <div class="text-2xl font-black font-mono text-sky-950 dark:text-sky-200 my-1">
             {{ result.newSystemText }}
           </div>
-          <p v-if="result.targetCheckOut" class="text-[11px] text-indigo-800/80 dark:text-indigo-400/80 flex items-center gap-1 font-bold">
-            <span>👉 應退勤打卡：</span>
-            <span class="underline">{{ result.targetCheckOut }}</span>
-          </p>
-          <p v-else class="text-[11px] text-indigo-700/80 dark:text-indigo-400/80">
+          <p class="text-[11px] text-sky-700/80 dark:text-sky-400/80">
             請假時數：<strong>{{ result.hours }}</strong> 小時
+            <span v-if="result.targetCheckOut">（應退勤打卡：{{ result.targetCheckOut }}）</span>
           </p>
         </div>
 
-        <!-- 舊系統填單區塊 -->
+        <!-- 舊系統填單區塊（琥珀色） -->
         <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-black text-amber-800 dark:text-amber-400">舊系統【差假單 KEY 法】</span>
@@ -402,7 +399,7 @@
         const mapToOldSystem = (hours, dir = 'FROM_START') => {
           const totalMins = Math.round(hours * 60);
           if (totalMins <= 0) return '無須請假';
-          if (totalMins >= 480) return '08:30 ～ 17:30 (全日 8.0 hr)';
+          if (totalMins >= 480) return '08:30 ～ 17:30';
 
           if (dir === 'FROM_START') {
             const startMin = 8 * 60 + 30; // 08:30
@@ -438,7 +435,7 @@
               const stdOutMin = inMin + 9 * 60; // 8hr在勤 + 1hr午休
               if (outMin >= stdOutMin) {
                 hours = 0;
-                newSystemText = '工時滿 8 小時 (無須請假)';
+                newSystemText = '00:00 ～ 00:00';
                 oldSystemInterval = '無須請假';
                 targetCheckOut = `${minutesToTime(stdOutMin)} 即可正常刷退`;
               } else {
@@ -457,7 +454,7 @@
               const limitMin = 9 * 60; // 09:00
               if (arrMin <= limitMin) {
                 hours = 0;
-                newSystemText = '正常彈性到勤 (無須請假)';
+                newSystemText = '00:00 ～ 00:00';
                 oldSystemInterval = '無須請假';
                 targetCheckOut = `${minutesToTime(arrMin + 9 * 60)} 即可刷退`;
               } else {
@@ -484,7 +481,7 @@
               if (arrMin < minFlex) {
                 const outMin = minFlex + 9 * 60;
                 newSystemText = `08:00 ～ ${minutesToTime(outMin)}`;
-                targetCheckOut = `${minutesToTime(outMin)} 始可刷退`;
+                targetCheckOut = `${minutesToTime(outMin)}`;
                 warning = '注意：彈性上班起算點為 08:00，早於 08:00 打卡者，仍須於 17:00 後始可刷退。';
               } else if (arrMin > maxFlex) {
                 const outMin = arrMin + 9 * 60;
@@ -494,14 +491,14 @@
               } else {
                 const outMin = arrMin + 9 * 60;
                 newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
-                targetCheckOut = `${minutesToTime(outMin)} 即可刷退`;
+                targetCheckOut = `${minutesToTime(outMin)}`;
               }
               break;
             }
 
             case 'HALF_MORNING':
               hours = 4.0;
-              newSystemText = '08:30 ～ 12:30 (上午假)';
+              newSystemText = '08:30 ～ 12:30';
               oldSystemInterval = '08:30 ～ 12:30';
               targetCheckOut = '17:30 (13:30 須準時上班)';
               break;
@@ -510,7 +507,7 @@
               hours = 4.0;
               const arrMin = timeToMinutes(morningCheckIn.value);
               const leaveMin = arrMin + 240; // 滿 4 小時
-              newSystemText = `13:30 ～ 17:30 (下午假)`;
+              newSystemText = `13:30 ～ 17:30`;
               oldSystemInterval = '13:30 ～ 17:30';
               targetCheckOut = `${minutesToTime(leaveMin)} 始可刷退`;
               if (arrMin < 8 * 60 || arrMin > 9 * 60) {
