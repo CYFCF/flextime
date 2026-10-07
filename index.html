@@ -55,16 +55,12 @@
     .bouncy-btn:active {
       transform: scale(0.92);
     }
-    /* 統一所有時間輸入框標準尺寸 */
-    .time-input-unified {
-      height: 3.5rem; /* 56px 最適點擊尺寸 */
-      font-size: 1.25rem; /* text-xl */
-      font-weight: 700;
-      text-align: center;
-      border-radius: 1rem;
-      border-width: 2px;
-      outline: none;
-      transition: border-color 0.2s;
+    /* 滾輪自訂捲動列 */
+    .wheel-scroll {
+      scroll-snap-type: y mandatory;
+    }
+    .wheel-item {
+      scroll-snap-align: center;
     }
   </style>
 </head>
@@ -126,13 +122,11 @@
         <div v-if="leaveType === 'EARLY_LEAVE'" class="space-y-3">
           <div>
             <label class="block text-xs font-bold text-slate-500 mb-1.5">早上實際到班</label>
-            <input type="time" v-model="normalCheckIn"
-                   class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-blue-200 dark:border-slate-700 font-mono focus:border-sky-400">
+            <universal-time-box v-model="normalCheckIn" @open-wheel="openWheelPicker('normalCheckIn', '早上實際到班')"></universal-time-box>
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-500 mb-1.5">預計提前刷退時間</label>
-            <input type="time" v-model="planEarlyCheckOut"
-                   class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-blue-300 dark:border-slate-700 font-mono focus:border-sky-400">
+            <universal-time-box v-model="planEarlyCheckOut" @open-wheel="openWheelPicker('planEarlyCheckOut', '預計提前刷退時間')"></universal-time-box>
           </div>
           <div class="grid grid-cols-4 gap-2 pt-1">
             <button @click="planEarlyCheckOut = '14:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">14:00 走</button>
@@ -147,10 +141,7 @@
           <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
             ⏰ 實際到班時間 (逾 09:00)
           </label>
-          <div class="flex items-center gap-2">
-            <input type="time" v-model="lateCheckIn" step="60"
-                   class="time-input-unified flex-1 bg-amber-50/60 dark:bg-slate-800 border-orange-200 dark:border-slate-700 font-mono focus:border-rose-400">
-          </div>
+          <universal-time-box v-model="lateCheckIn" @open-wheel="openWheelPicker('lateCheckIn', '實際到班時間')"></universal-time-box>
           <div class="grid grid-cols-4 gap-2 pt-1">
             <button @click="addMinutes('lateCheckIn', -30)" class="bouncy-btn py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">-30分</button>
             <button @click="addMinutes('lateCheckIn', 10)" class="bouncy-btn py-2 bg-orange-100 text-orange-700 rounded-xl text-xs font-bold">+10分</button>
@@ -164,8 +155,7 @@
           <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
             ☀️ 上午上班打卡時間 (彈性 08:00～09:00)
           </label>
-          <input type="time" v-model="fullDayCheckIn" step="60"
-                 class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-amber-300 dark:border-slate-700 font-mono focus:border-amber-500">
+          <universal-time-box v-model="fullDayCheckIn" @open-wheel="openWheelPicker('fullDayCheckIn', '上班打卡時間')"></universal-time-box>
           <div class="grid grid-cols-3 gap-2 pt-1">
             <button @click="fullDayCheckIn = '07:55'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">07:55 打卡</button>
             <button @click="fullDayCheckIn = '08:30'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 打卡</button>
@@ -190,8 +180,7 @@
           <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
             ☀️ 上午到班刷卡時間 (08:00~09:00)
           </label>
-          <input type="time" v-model="morningCheckIn" step="60"
-                 class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-amber-200 dark:border-slate-700 font-mono focus:border-amber-400">
+          <universal-time-box v-model="morningCheckIn" @open-wheel="openWheelPicker('morningCheckIn', '上午到班時間')"></universal-time-box>
           <div class="flex gap-2">
             <button @click="morningCheckIn = '08:00'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:00 到</button>
             <button @click="morningCheckIn = '08:30'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 到</button>
@@ -206,13 +195,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <span class="block text-xs font-bold text-slate-500 mb-1.5">請假開始時間</span>
-              <input type="time" v-model="midLeaveStart"
-                     class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-purple-200 dark:border-slate-700 font-mono focus:border-purple-400">
+              <universal-time-box v-model="midLeaveStart" @open-wheel="openWheelPicker('midLeaveStart', '請假開始時間')"></universal-time-box>
             </div>
             <div>
               <span class="block text-xs font-bold text-slate-500 mb-1.5">請假結束時間</span>
-              <input type="time" v-model="midLeaveEnd"
-                     class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-purple-200 dark:border-slate-700 font-mono focus:border-purple-400">
+              <universal-time-box v-model="midLeaveEnd" @open-wheel="openWheelPicker('midLeaveEnd', '請假結束時間')"></universal-time-box>
             </div>
           </div>
           <p class="text-[11px] text-purple-600 dark:text-purple-400 font-semibold text-center">
@@ -278,7 +265,7 @@
 
     </main>
 
-    <!-- 最下方主選單：依指定順序排列 6 個情境 -->
+    <!-- 最下方主選單 -->
     <nav class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
@@ -299,16 +286,56 @@
       </button>
     </nav>
 
+    <!-- 跨平台通用「數字旋轉滾輪」彈窗 (Modal Picker) -->
+    <div v-if="wheelModal.show" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-800">
+          <span class="font-black text-slate-800 dark:text-slate-100 text-base">選擇時間：{{ wheelModal.title }}</span>
+          <button @click="wheelModal.show = false" class="text-slate-400 hover:text-slate-600 text-sm font-bold">關閉</button>
+        </div>
+
+        <!-- 旋轉滾輪主體區 (時 / 分) -->
+        <div class="flex items-center justify-center gap-4 py-2">
+          <!-- 小時滾輪 (00 ~ 23) -->
+          <div class="w-24 h-44 overflow-y-auto no-scrollbar wheel-scroll border-y-2 border-indigo-500 py-16 text-center">
+            <div v-for="h in 24" :key="h" 
+                 @click="wheelModal.selectedHour = formatTwoDigits(h - 1)"
+                 :class="wheelModal.selectedHour === formatTwoDigits(h - 1) ? 'text-indigo-600 dark:text-indigo-400 font-black text-2xl scale-110' : 'text-slate-400 text-lg'"
+                 class="wheel-item py-2 cursor-pointer transition">
+              {{ formatTwoDigits(h - 1) }} 時
+            </div>
+          </div>
+
+          <span class="text-2xl font-bold text-slate-400">:</span>
+
+          <!-- 分鐘滾輪 (00 ~ 59，每 5 分鐘級距快速選擇) -->
+          <div class="w-24 h-44 overflow-y-auto no-scrollbar wheel-scroll border-y-2 border-indigo-500 py-16 text-center">
+            <div v-for="m in minuteOptions" :key="m" 
+                 @click="wheelModal.selectedMinute = m"
+                 :class="wheelModal.selectedMinute === m ? 'text-indigo-600 dark:text-indigo-400 font-black text-2xl scale-110' : 'text-slate-400 text-lg'"
+                 class="wheel-item py-2 cursor-pointer transition">
+              {{ m }} 分
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button @click="confirmWheelPicker" class="bouncy-btn flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow">
+            確認設定 ({{ wheelModal.selectedHour }}:{{ wheelModal.selectedMinute }})
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
     const { createApp, ref, computed, onMounted, nextTick } = Vue;
 
-    createApp({
+    const app = createApp({
       setup() {
         const isDark = ref(false);
 
-        // 6 個情境：早走退勤、班前請假、全日班(彈性打卡)、上午休假、下午休假、中途請假
         const leaveTypes = [
           { 
             id: 'EARLY_LEAVE', 
@@ -375,6 +402,50 @@
         const midLeaveStart = ref('10:00');
         const midLeaveEnd = ref('11:00');
 
+        // 通用滾輪狀態 Modal
+        const wheelModal = ref({
+          show: false,
+          targetField: '',
+          title: '',
+          selectedHour: '08',
+          selectedMinute: '00'
+        });
+
+        // 每 5 分鐘級距 (00, 05, 10 ... 55)
+        const minuteOptions = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
+        const formatTwoDigits = (num) => String(num).padStart(2, '0');
+
+        const openWheelPicker = (fieldName, title) => {
+          wheelModal.value.targetField = fieldName;
+          wheelModal.value.title = title;
+          let currentVal = '08:00';
+          if (fieldName === 'normalCheckIn') currentVal = normalCheckIn.value;
+          else if (fieldName === 'planEarlyCheckOut') currentVal = planEarlyCheckOut.value;
+          else if (fieldName === 'lateCheckIn') currentVal = lateCheckIn.value;
+          else if (fieldName === 'fullDayCheckIn') currentVal = fullDayCheckIn.value;
+          else if (fieldName === 'morningCheckIn') currentVal = morningCheckIn.value;
+          else if (fieldName === 'midLeaveStart') currentVal = midLeaveStart.value;
+          else if (fieldName === 'midLeaveEnd') currentVal = midLeaveEnd.value;
+
+          const [h, m] = currentVal.split(':');
+          wheelModal.value.selectedHour = h || '08';
+          wheelModal.value.selectedMinute = m || '00';
+          wheelModal.value.show = true;
+        };
+
+        const confirmWheelPicker = () => {
+          const formatted = `${wheelModal.value.selectedHour}:${wheelModal.value.selectedMinute}`;
+          const target = wheelModal.value.targetField;
+          if (target === 'normalCheckIn') normalCheckIn.value = formatted;
+          else if (target === 'planEarlyCheckOut') planEarlyCheckOut.value = formatted;
+          else if (target === 'lateCheckIn') lateCheckIn.value = formatted;
+          else if (target === 'fullDayCheckIn') fullDayCheckIn.value = formatted;
+          else if (target === 'morningCheckIn') morningCheckIn.value = formatted;
+          else if (target === 'midLeaveStart') midLeaveStart.value = formatted;
+          else if (target === 'midLeaveEnd') midLeaveEnd.value = formatted;
+          wheelModal.value.show = false;
+        };
+
         const currentTypeData = computed(() => {
           return leaveTypes.find(t => t.id === leaveType.value) || leaveTypes[0];
         });
@@ -387,7 +458,7 @@
         const timeToMinutes = (str) => {
           if (!str) return 0;
           const [h, m] = str.split(':').map(Number);
-          return h * 60 + m;
+          return (h || 0) * 60 + (m || 0);
         };
 
         const minutesToTime = (min) => {
@@ -601,11 +672,69 @@
           midLeaveStart,
           midLeaveEnd,
           result,
+          wheelModal,
+          minuteOptions,
+          formatTwoDigits,
+          openWheelPicker,
+          confirmWheelPicker,
           addMinutes,
           toggleDarkMode
         };
       }
-    }).mount('#app');
+    });
+
+    // 跨平台時間輸入自訂元件 (支援直接鍵入 0830 與 彈出滾輪)
+    app.component('universal-time-box', {
+      props: ['modelValue'],
+      emits: ['update:modelValue', 'open-wheel'],
+      setup(props, { emit }) {
+        const handleInput = (e) => {
+          let val = e.target.value.replace(/[^0-9]/g, ''); // 僅保留純數字
+          if (val.length > 4) val = val.slice(0, 4);
+
+          // 鍵盤輸入 4 位數（如 0830）自動加上冒號
+          if (val.length === 4) {
+            const h = Math.min(23, parseInt(val.slice(0, 2), 10));
+            const m = Math.min(59, parseInt(val.slice(2, 4), 10));
+            const formatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            emit('update:modelValue', formatted);
+          } else {
+            emit('update:modelValue', e.target.value);
+          }
+        };
+
+        const handleBlur = (e) => {
+          let val = e.target.value.replace(/[^0-9]/g, '');
+          if (val.length === 3) val = '0' + val; // 830 -> 0830
+          if (val.length === 4) {
+            const h = Math.min(23, parseInt(val.slice(0, 2), 10));
+            const m = Math.min(59, parseInt(val.slice(2, 4), 10));
+            emit('update:modelValue', `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+          }
+        };
+
+        return { handleInput, handleBlur };
+      },
+      template: `
+        <div class="relative flex items-center">
+          <input type="text"
+                 inputmode="numeric"
+                 placeholder="08:30 或輸入 0830"
+                 :value="modelValue"
+                 @input="handleInput"
+                 @blur="handleBlur"
+                 class="h-14 w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl px-4 text-xl font-bold font-mono text-center tracking-wider focus:outline-none focus:border-indigo-500 transition">
+          <button type="button" 
+                  @click="$emit('open-wheel')" 
+                  class="absolute right-2 px-3 py-2 bg-indigo-50 dark:bg-slate-700 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-300 rounded-xl text-xs font-black flex items-center gap-1 shadow-sm transition"
+                  title="開啟數字滾輪選擇">
+            <span>滾輪</span>
+          </button>
+        </div>
+      `
+    });
+
+    app.mount('#app');
   </script>
 </body>
 </html>
