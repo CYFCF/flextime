@@ -228,35 +228,45 @@
       <!-- 雙系統計算成果對照卡 (新舊系統畫面格式完全對稱一致) -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
         
-        <!-- 新系統區塊（版面格式與舊系統完全一致，採用天藍/靛色區分） -->
-        <div class="p-4 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative">
-          <div class="flex items-center justify-between mb-1">
+        <!-- 新系統區塊（藍色系，格式完全對稱） -->
+        <div class="p-4 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
+          <div class="flex items-center justify-between">
             <span class="text-xs font-black text-sky-800 dark:text-sky-400">新系統【彈性班】</span>
             <span class="text-xs font-bold text-sky-700 dark:text-sky-300">
               {{ leaveType === 'FULL_DAY' ? '彈性上下班' : '彈性工時計算' }}
             </span>
           </div>
+          
           <div class="text-2xl font-black font-mono text-sky-950 dark:text-sky-200 my-1">
             {{ result.newSystemText }}
           </div>
-          <p class="text-[11px] text-sky-700/80 dark:text-sky-400/80">
+
+          <!-- 醒目退勤打卡提示 Badge -->
+          <div v-if="result.targetCheckOut" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 text-white shadow-sm text-xs font-bold">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span>應退勤打卡：</span>
+            <span class="text-sm font-black underline tracking-wide">{{ result.targetCheckOut }}</span>
+          </div>
+
+          <p class="text-[11px] text-sky-700/80 dark:text-sky-400/80 pt-0.5">
             請假時數：<strong>{{ result.hours }}</strong> 小時
-            <span v-if="result.targetCheckOut">（應退勤打卡：{{ result.targetCheckOut }}）</span>
           </p>
         </div>
 
-        <!-- 舊系統填單區塊（琥珀色） -->
-        <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative">
-          <div class="flex items-center justify-between mb-1">
+        <!-- 舊系統填單區塊（琥珀色系） -->
+        <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative space-y-2">
+          <div class="flex items-center justify-between">
             <span class="text-xs font-black text-amber-800 dark:text-amber-400">舊系統【差假單 KEY 法】</span>
             <span class="text-xs font-bold text-amber-700 dark:text-amber-300">
               {{ leaveType === 'MID_LEAVE' ? '依實際請假時間' : '08:30~17:30 限制' }}
             </span>
           </div>
+          
           <div class="text-2xl font-black font-mono text-amber-900 dark:text-amber-200 my-1">
             {{ result.oldSystemInterval }}
           </div>
-          <p class="text-[11px] text-amber-700/80 dark:text-amber-400/80">
+
+          <p class="text-[11px] text-amber-700/80 dark:text-amber-400/80 pt-1">
             請假時數：<strong>{{ result.hours }}</strong> 小時（已跳過 12:30~13:30 午休）
           </p>
         </div>
@@ -444,7 +454,8 @@
                 hours = roundedMins / 60;
                 newSystemText = `${planEarlyCheckOut.value} ～ ${minutesToTime(stdOutMin)}`;
                 oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
-                targetCheckOut = `已於 ${planEarlyCheckOut.value} 提前刷退`;
+                // 直接顯示可刷退的時間，避免誤會文字
+                targetCheckOut = `${planEarlyCheckOut.value} 即可刷退`;
               }
               break;
             }
@@ -464,7 +475,7 @@
                 const leaveEnd = limitMin + roundedMins;
                 newSystemText = `09:00 ～ ${minutesToTime(leaveEnd)}`;
                 oldSystemInterval = mapToOldSystem(hours, 'FROM_START');
-                targetCheckOut = '18:00 (當日下班固定為 18:00)';
+                targetCheckOut = '18:00 (固定下班時間)';
                 warning = `您於 ${lateCheckIn.value} 到勤，已逾 09:00。依規定請假由 09:00 起算並以30分鐘進位，下班固定為 18:00。`;
               }
               break;
@@ -481,17 +492,17 @@
               if (arrMin < minFlex) {
                 const outMin = minFlex + 9 * 60;
                 newSystemText = `08:00 ～ ${minutesToTime(outMin)}`;
-                targetCheckOut = `${minutesToTime(outMin)}`;
+                targetCheckOut = `${minutesToTime(outMin)} 始可刷退`;
                 warning = '注意：彈性上班起算點為 08:00，早於 08:00 打卡者，仍須於 17:00 後始可刷退。';
               } else if (arrMin > maxFlex) {
                 const outMin = arrMin + 9 * 60;
                 newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
-                targetCheckOut = '18:00 (逾 09:00 請參考「逾9點到」請假)';
+                targetCheckOut = '18:00 (逾09:00請按「逾9點到」處理)';
                 warning = `您輸入的時間為 ${fullDayCheckIn.value}，已超過最晚彈性上班時限 09:00！請點選下方「逾9點到」計算請假時數。`;
               } else {
                 const outMin = arrMin + 9 * 60;
                 newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
-                targetCheckOut = `${minutesToTime(outMin)}`;
+                targetCheckOut = `${minutesToTime(outMin)} 即可刷退`;
               }
               break;
             }
@@ -500,7 +511,7 @@
               hours = 4.0;
               newSystemText = '08:30 ～ 12:30';
               oldSystemInterval = '08:30 ～ 12:30';
-              targetCheckOut = '17:30 (13:30 須準時上班)';
+              targetCheckOut = '17:30 (13:30須準時打卡)';
               break;
 
             case 'HALF_AFTERNOON': {
