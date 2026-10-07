@@ -56,10 +56,9 @@
       transform: scale(0.92);
     }
     
-    /* 統一原生時間輸入框樣式，點擊觸發原生 iOS 滾輪與 Android 鐘面 */
     .native-time-input {
-      height: 3.5rem; /* 56px 最適點擊高 */
-      font-size: 1.25rem; /* text-xl */
+      height: 3.5rem;
+      font-size: 1.25rem;
       font-weight: 700;
       text-align: center;
       border-radius: 1rem;
@@ -132,7 +131,7 @@
       <!-- 操作輸入面板卡片 -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-orange-100/60 dark:border-slate-800 space-y-4">
         
-        <!-- 1. 提早退勤 -->
+        <!-- 1. 到班後請假 -->
         <div v-if="leaveType === 'EARLY_LEAVE'" class="space-y-3">
           <div>
             <label class="block text-xs font-bold text-slate-500 mb-1.5">早上實際到班</label>
@@ -152,7 +151,7 @@
           </div>
         </div>
 
-        <!-- 2. 班前請假 -->
+        <!-- 2. 到班前請假 -->
         <div v-if="leaveType === 'LATE_ARRIVE'" class="space-y-3">
           <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
             ⏰ 實際到班時間 (逾 09:00)
@@ -286,7 +285,7 @@
 
     </main>
 
-    <!-- 最下方主選單 -->
+    <!-- 最下方主選單：依指定順序排列 6 個情境 -->
     <nav class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
@@ -316,11 +315,12 @@
       setup() {
         const isDark = ref(false);
 
+        // 6 個情境：提早退勤(到班後請假)、到班前請(到班前請假)、全日班、上午休假、下午休假、中途請假
         const leaveTypes = [
           { 
             id: 'EARLY_LEAVE', 
-            name: '提早退勤', 
-            shortName: '早走退勤', 
+            name: '到班後請假', 
+            shortName: '提早退勤', 
             sub: '08:00~09:00 到班，補足 8 小時',
             icon: 'sunset',
             activeBg: 'bg-[#45B7D1]',
@@ -328,8 +328,8 @@
           },
           { 
             id: 'LATE_ARRIVE', 
-            name: '班前請假', 
-            shortName: '班前請假', 
+            name: '到班前請假', 
+            shortName: '到班前請', 
             sub: '逾 09:00 起算，固定 18:00 下班',
             icon: 'sun-medium',
             activeBg: 'bg-[#FF6B6B]',
@@ -452,7 +452,7 @@
                 effectiveInMin = 8 * 60;
               } else if (rawInMin > 9 * 60) {
                 effectiveInMin = 9 * 60;
-                warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「班前請假」情境辦理。`;
+                warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「到班前請假」情境辦理。`;
               }
 
               const stdOutMin = effectiveInMin + 9 * 60;
@@ -510,8 +510,8 @@
               } else if (arrMin > maxFlex) {
                 const outMin = arrMin + 9 * 60;
                 newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
-                targetCheckOut = '18:00 (逾09:00請按「班前請假」處理)';
-                warning = `您輸入的時間為 ${fullDayCheckIn.value}，已超過最晚彈性上班時限 09:00！請點選下方「班前請假」計算時數。`;
+                targetCheckOut = '18:00 (逾09:00請按「到班前請假」處理)';
+                warning = `您輸入的時間為 ${fullDayCheckIn.value}，已超過最晚彈性上班時限 09:00！請點選下方「到班前請假」計算時數。`;
               } else {
                 const outMin = arrMin + 9 * 60;
                 newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
