@@ -156,12 +156,20 @@
           </div>
         </div>
 
-        <!-- 3. 全天假 -->
-        <div v-if="leaveType === 'FULL_DAY'" class="text-center py-4 space-y-2">
-          <div class="text-4xl">🏖️</div>
-          <p class="font-bold text-slate-800 dark:text-slate-200">全日請假 8.0 小時</p>
-          <p class="text-xs text-slate-500">
-            按正常上班時間辦理：08:30 ～ 17:30。
+        <!-- 3. 全日班 (彈性工時試算) -->
+        <div v-if="leaveType === 'FULL_DAY'" class="space-y-3">
+          <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
+            ☀️ 上午上班打卡時間 (彈性 08:00～09:00)
+          </label>
+          <input type="time" v-model="fullDayCheckIn" step="60"
+                 class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-2xl font-black font-mono text-center focus:outline-none focus:border-amber-500">
+          <div class="grid grid-cols-3 gap-2 pt-1">
+            <button @click="fullDayCheckIn = '08:00'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:00 打卡</button>
+            <button @click="fullDayCheckIn = '08:30'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 打卡</button>
+            <button @click="fullDayCheckIn = '09:00'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">09:00 打卡</button>
+          </div>
+          <p class="text-xs text-amber-700 dark:text-amber-400 font-bold">
+            💡 全日彈性工時：工作滿 8 小時 + 午休 1 小時（12:30～13:30），共計 9 小時後可刷退。
           </p>
         </div>
 
@@ -285,7 +293,7 @@
         const isDark = ref(false);
         const isLargeFont = ref(false);
 
-        // 6 個情境：早走退勤、逾9點到、全天假、上午休假、下午休假、中途請假
+        // 6 個情境：早走退勤、逾9點到、全日班(彈性打卡)、上午休假、下午休假、中途請假
         const leaveTypes = [
           { 
             id: 'EARLY_LEAVE', 
@@ -307,10 +315,10 @@
           },
           { 
             id: 'FULL_DAY', 
-            name: '全日請假', 
-            shortName: '全天假', 
-            sub: '正常全日 8.0 小時',
-            icon: 'palmtree',
+            name: '全日班 (彈性工時)', 
+            shortName: '全日班', 
+            sub: '打卡時間 + 9 小時 (含午休 1hr)',
+            icon: 'clock',
             activeBg: 'bg-[#FFBE0B]',
             cardBg: 'bg-gradient-to-r from-[#FFBE0B] to-[#FB5607]'
           },
@@ -348,6 +356,7 @@
         const lateCheckIn = ref('09:20');
         const normalCheckIn = ref('08:15');
         const planEarlyCheckOut = ref('15:15');
+        const fullDayCheckIn = ref('08:15');
         const midLeaveStart = ref('10:00');
         const midLeaveEnd = ref('11:00');
 
@@ -455,11 +464,35 @@
               break;
             }
 
-            case 'FULL_DAY':
-              hours = 8.0;
-              newSystemText = '08:30 ～ 17:30 (整日請假)';
-              oldSystemInterval = '08:30 ～ 17:30';
+            case 'FULL_DAY': {
+              // 彈性班別：打卡時間 + 9 小時 (8小時工時 + 1小時午休)
+              const arrMin = timeToMinutes(fullDayCheckIn.value);
+              const minFlex = 8 * 60; // 08:00
+              const maxFlex = 9 * 60; // 09:00
+              
+              hours = 0; // 正常全日出勤，無須請假
+              oldSystemInterval = '正常出勤 (無須請假)';
+
+              if (arrMin < minFlex) {
+                // 提早於 08:00 到，仍自 08:00 起算，17:00 即可退勤
+                const outMin = minFlex + 9 * 60;
+                targetCheckOut = `${minutesToTime(outMin)} 即可刷退`;
+                newSystemText = `提早於 ${fullDayCheckIn.value} 打卡，工時自 08:00 起算至 17:00 滿8小時`;
+                warning = '注意：彈性上班起算點為 08:00，早於 08:00 打卡者，仍須於 17:00 後始可刷退。';
+              } else if (arrMin > maxFlex) {
+                // 超過 09:00 到勤
+                const outMin = arrMin + 9 * 60;
+                targetCheckOut = '18:00 (逾 09:00 依規定須請假)';
+                newSystemText = `逾 09:00 到勤，建議切換至「逾9點到」計算請假與退勤時間`;
+                warning = `您輸入的時間為 ${fullDayCheckIn.value}，已超過最晚彈性上班時限 09:00！請點選下方「逾9點到」計算請假時數。`;
+              } else {
+                // 08:00 ~ 09:00 正常彈性區間
+                const outMin = arrMin + 9 * 60;
+                targetCheckOut = `${minutesToTime(outMin)} 即可刷退`;
+                newSystemText = `${fullDayCheckIn.value} 到勤，服勤滿 8 小時（含午休1小時）`;
+              }
               break;
+            }
 
             case 'HALF_MORNING':
               hours = 4.0;
@@ -502,7 +535,6 @@
                 hours = roundedMins / 60;
 
                 newSystemText = `${midLeaveStart.value} ～ ${midLeaveEnd.value}`;
-                // 舊系統直接填寫實際請假時間
                 oldSystemInterval = `${midLeaveStart.value} ～ ${midLeaveEnd.value}`;
 
                 if (overlap > 0) {
@@ -548,6 +580,7 @@
           lateCheckIn,
           normalCheckIn,
           planEarlyCheckOut,
+          fullDayCheckIn,
           midLeaveStart,
           midLeaveEnd,
           result,
