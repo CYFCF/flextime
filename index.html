@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>差假工時計算器 - Aptivo 風格版</title>
+  <title>差假工時計算器</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -55,6 +55,17 @@
     .bouncy-btn:active {
       transform: scale(0.92);
     }
+    /* 統一所有時間輸入框標準尺寸 */
+    .time-input-unified {
+      height: 3.5rem; /* 56px 最適點擊尺寸 */
+      font-size: 1.25rem; /* text-xl */
+      font-weight: 700;
+      text-align: center;
+      border-radius: 1rem;
+      border-width: 2px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
   </style>
 </head>
 <body class="h-full bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 select-none">
@@ -64,7 +75,7 @@
     <header class="px-5 pt-4 pb-3 flex-shrink-0">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <!-- 俏皮花朵吉祥物 (Petal Eyes) -->
+          <!-- 俏皮花朵吉祥物 -->
           <div class="w-10 h-10 rounded-2xl bg-[#FF6B6B] flex items-center justify-center shadow-md shadow-red-500/20 relative">
             <div class="flex gap-1 mascot-eye">
               <div class="w-2.5 h-3.5 bg-white rounded-full flex items-center justify-center relative">
@@ -114,14 +125,14 @@
         <!-- 1. 提早退勤 -->
         <div v-if="leaveType === 'EARLY_LEAVE'" class="space-y-3">
           <div>
-            <label class="block text-xs font-bold text-slate-500 mb-1">早上實際到班</label>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">早上實際到班</label>
             <input type="time" v-model="normalCheckIn"
-                   class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-blue-200 dark:border-slate-700 rounded-2xl px-4 py-2.5 text-xl font-bold font-mono text-center focus:outline-none">
+                   class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-blue-200 dark:border-slate-700 font-mono focus:border-sky-400">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-500 mb-1">預計提前刷退時間</label>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">預計提前刷退時間</label>
             <input type="time" v-model="planEarlyCheckOut"
-                   class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-blue-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-2xl font-black font-mono text-center focus:outline-none focus:border-sky-400">
+                   class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-blue-300 dark:border-slate-700 font-mono focus:border-sky-400">
           </div>
           <div class="grid grid-cols-4 gap-2 pt-1">
             <button @click="planEarlyCheckOut = '14:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">14:00 走</button>
@@ -131,14 +142,14 @@
           </div>
         </div>
 
-        <!-- 2. 逾9點到 / 遲到請假 -->
+        <!-- 2. 班前請假 -->
         <div v-if="leaveType === 'LATE_ARRIVE'" class="space-y-3">
           <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
-            ⏰ 實際上線/到班打卡時間 (逾 09:00)
+            ⏰ 實際到班時間 (逾 09:00)
           </label>
           <div class="flex items-center gap-2">
             <input type="time" v-model="lateCheckIn" step="60"
-                   class="flex-1 bg-amber-50/60 dark:bg-slate-800 border-2 border-orange-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-2xl font-black font-mono text-center focus:outline-none focus:border-rose-400">
+                   class="time-input-unified flex-1 bg-amber-50/60 dark:bg-slate-800 border-orange-200 dark:border-slate-700 font-mono focus:border-rose-400">
           </div>
           <div class="grid grid-cols-4 gap-2 pt-1">
             <button @click="addMinutes('lateCheckIn', -30)" class="bouncy-btn py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">-30分</button>
@@ -154,7 +165,7 @@
             ☀️ 上午上班打卡時間 (彈性 08:00～09:00)
           </label>
           <input type="time" v-model="fullDayCheckIn" step="60"
-                 class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-amber-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-2xl font-black font-mono text-center focus:outline-none focus:border-amber-500">
+                 class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-amber-300 dark:border-slate-700 font-mono focus:border-amber-500">
           <div class="grid grid-cols-3 gap-2 pt-1">
             <button @click="fullDayCheckIn = '07:55'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">07:55 打卡</button>
             <button @click="fullDayCheckIn = '08:30'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 打卡</button>
@@ -180,7 +191,7 @@
             ☀️ 上午到班刷卡時間 (08:00~09:00)
           </label>
           <input type="time" v-model="morningCheckIn" step="60"
-                 class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-amber-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-2xl font-black font-mono text-center focus:outline-none">
+                 class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-amber-200 dark:border-slate-700 font-mono focus:border-amber-400">
           <div class="flex gap-2">
             <button @click="morningCheckIn = '08:00'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:00 到</button>
             <button @click="morningCheckIn = '08:30'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 到</button>
@@ -194,14 +205,14 @@
         <div v-if="leaveType === 'MID_LEAVE'" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <span class="block text-xs font-bold text-slate-500 mb-1">請假開始時間</span>
+              <span class="block text-xs font-bold text-slate-500 mb-1.5">請假開始時間</span>
               <input type="time" v-model="midLeaveStart"
-                     class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-purple-200 rounded-2xl p-2.5 text-lg font-bold font-mono text-center">
+                     class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-purple-200 dark:border-slate-700 font-mono focus:border-purple-400">
             </div>
             <div>
-              <span class="block text-xs font-bold text-slate-500 mb-1">請假結束時間</span>
+              <span class="block text-xs font-bold text-slate-500 mb-1.5">請假結束時間</span>
               <input type="time" v-model="midLeaveEnd"
-                     class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-purple-200 rounded-2xl p-2.5 text-lg font-bold font-mono text-center">
+                     class="time-input-unified w-full bg-amber-50/60 dark:bg-slate-800 border-purple-200 dark:border-slate-700 font-mono focus:border-purple-400">
             </div>
           </div>
           <p class="text-[11px] text-purple-600 dark:text-purple-400 font-semibold text-center">
@@ -211,7 +222,7 @@
 
       </div>
 
-      <!-- 防呆警示提醒（僅保留逾9點等關鍵提醒） -->
+      <!-- 防呆警示提醒 -->
       <div v-if="result.warning" class="p-3.5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 text-xs font-bold flex items-start gap-2">
         <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
         <span>{{ result.warning }}</span>
@@ -297,6 +308,7 @@
       setup() {
         const isDark = ref(false);
 
+        // 6 個情境：早走退勤、班前請假、全日班(彈性打卡)、上午休假、下午休假、中途請假
         const leaveTypes = [
           { 
             id: 'EARLY_LEAVE', 
@@ -309,8 +321,8 @@
           },
           { 
             id: 'LATE_ARRIVE', 
-            name: '遲到 / 早上請假', 
-            shortName: '逾9點到', 
+            name: '班前請假', 
+            shortName: '班前請假', 
             sub: '逾 09:00 起算，固定 18:00 下班',
             icon: 'sun-medium',
             activeBg: 'bg-[#FF6B6B]',
@@ -428,13 +440,12 @@
               const rawInMin = timeToMinutes(normalCheckIn.value);
               const outMin = timeToMinutes(planEarlyCheckOut.value);
 
-              // 鎖死彈性上班區間：08:00 ~ 09:00
               let effectiveInMin = rawInMin;
               if (rawInMin < 8 * 60) {
-                effectiveInMin = 8 * 60; // 靜默鎖死為 08:00，不噴警示文字
+                effectiveInMin = 8 * 60;
               } else if (rawInMin > 9 * 60) {
                 effectiveInMin = 9 * 60;
-                warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「逾9點到」情境辦理請假。`;
+                warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「班前請假」情境辦理。`;
               }
 
               const stdOutMin = effectiveInMin + 9 * 60;
@@ -472,7 +483,7 @@
                 newSystemText = `09:00 ～ ${minutesToTime(leaveEnd)}`;
                 oldSystemInterval = mapToOldSystem(hours, 'FROM_START');
                 targetCheckOut = '18:00 (固定下班時間)';
-                warning = `您於 ${lateCheckIn.value} 到勤，已逾 09:00。依規定請假由 09:00 起算並以30分鐘進位，下班固定為 18:00。`;
+                warning = `您於 ${lateCheckIn.value} 到勤，已逾 09:00。請假自 09:00 起算並以 30 分鐘進位，下班固定為 18:00。`;
               }
               break;
             }
@@ -492,8 +503,8 @@
               } else if (arrMin > maxFlex) {
                 const outMin = arrMin + 9 * 60;
                 newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
-                targetCheckOut = '18:00 (逾09:00請按「逾9點到」處理)';
-                warning = `您輸入的時間為 ${fullDayCheckIn.value}，已超過最晚彈性上班時限 09:00！請點選下方「逾9點到」計算請假時數。`;
+                targetCheckOut = '18:00 (逾09:00請按「班前請假」處理)';
+                warning = `您輸入的時間為 ${fullDayCheckIn.value}，已超過最晚彈性上班時限 09:00！請點選下方「班前請假」計算時數。`;
               } else {
                 const outMin = arrMin + 9 * 60;
                 newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
