@@ -13,14 +13,14 @@
         extend: {
           colors: {
             aptivo: {
-              cream: '#FFF7EE',       // 暖杏色背景
-              coral: '#FF6B6B',       // 活力珊瑚橘紅
-              peach: '#FFA07A',       // 蜜桃色
-              mint: '#4ECDC4',        // 薄荷粉綠
-              sky: '#45B7D1',         // 晴空粉藍
-              lavender: '#9B89B3',    // 薰衣草紫
-              sun: '#FFBE0B',         // 明亮向日葵黃
-              darkcard: '#22223b'     // 深色模式卡片底色
+              cream: '#FFF7EE',
+              coral: '#FF6B6B',
+              peach: '#FFA07A',
+              mint: '#4ECDC4',
+              sky: '#45B7D1',
+              lavender: '#9B89B3',
+              sun: '#FFBE0B',
+              darkcard: '#22223b'
             }
           },
           fontFamily: {
@@ -65,9 +65,8 @@
 <body class="h-full bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 select-none">
   <div id="app" class="h-full flex flex-col max-w-md mx-auto relative overflow-hidden bg-amber-50/40 dark:bg-slate-950 shadow-2xl">
     
-    <!-- 頂部手機 Status Bar + 吉祥物與問候區 (參考 Aptivo 首頁風格) -->
+    <!-- 頂部 Header -->
     <header class="px-5 pt-4 pb-3 flex-shrink-0">
-      <!-- 頂部工具列 -->
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <!-- 俏皮花朵吉祥物 (Petal Eyes) -->
@@ -101,10 +100,10 @@
       </div>
     </header>
 
-    <!-- 中間滾動內容區 (留出底部選單高度 pb-24) -->
+    <!-- 中間滾動內容區 -->
     <main class="flex-1 overflow-y-auto px-5 pb-28 pt-1 no-scrollbar space-y-4" :class="{ 'text-lg': isLargeFont }">
       
-      <!-- 當前情境橫幅標籤 (糖果色系) -->
+      <!-- 當前情境橫幅標籤 -->
       <div :class="currentTypeData.cardBg" class="p-4 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
         <div class="space-y-0.5">
           <div class="text-[11px] font-bold uppercase tracking-wider opacity-85">目前選取情境</div>
@@ -121,25 +120,7 @@
       <!-- 操作輸入面板卡片 -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-orange-100/60 dark:border-slate-800 space-y-4">
         
-        <!-- 情境 1: 遲到 / 到班前請假 -->
-        <div v-if="leaveType === 'LATE_ARRIVE'" class="space-y-3">
-          <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
-            ⏰ 實際上線/到班打卡時間 (逾 09:00)
-          </label>
-          <div class="flex items-center gap-2">
-            <input type="time" v-model="lateCheckIn" step="60"
-                   class="flex-1 bg-amber-50/60 dark:bg-slate-800 border-2 border-orange-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-2xl font-black font-mono text-center focus:outline-none focus:border-rose-400">
-          </div>
-          <!-- 快速加減按鈕（大按鈕設計） -->
-          <div class="grid grid-cols-4 gap-2 pt-1">
-            <button @click="addMinutes('lateCheckIn', -30)" class="bouncy-btn py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">-30分</button>
-            <button @click="addMinutes('lateCheckIn', 10)" class="bouncy-btn py-2 bg-orange-100 text-orange-700 rounded-xl text-xs font-bold">+10分</button>
-            <button @click="addMinutes('lateCheckIn', 30)" class="bouncy-btn py-2 bg-orange-200 text-orange-800 rounded-xl text-xs font-bold">+30分</button>
-            <button @click="lateCheckIn = '09:30'" class="bouncy-btn py-2 bg-rose-100 text-rose-700 rounded-xl text-xs font-bold">09:30</button>
-          </div>
-        </div>
-
-        <!-- 情境 2: 提早退勤 -->
+        <!-- 1. 提早退勤 -->
         <div v-if="leaveType === 'EARLY_LEAVE'" class="space-y-3">
           <div>
             <label class="block text-xs font-bold text-slate-500 mb-1">早上實際到班 (08:00~09:00)</label>
@@ -158,7 +139,42 @@
           </div>
         </div>
 
-        <!-- 情境 3: 下午半日請假 -->
+        <!-- 2. 逾9點到 / 遲到請假 -->
+        <div v-if="leaveType === 'LATE_ARRIVE'" class="space-y-3">
+          <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
+            ⏰ 實際上線/到班打卡時間 (逾 09:00)
+          </label>
+          <div class="flex items-center gap-2">
+            <input type="time" v-model="lateCheckIn" step="60"
+                   class="flex-1 bg-amber-50/60 dark:bg-slate-800 border-2 border-orange-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-2xl font-black font-mono text-center focus:outline-none focus:border-rose-400">
+          </div>
+          <div class="grid grid-cols-4 gap-2 pt-1">
+            <button @click="addMinutes('lateCheckIn', -30)" class="bouncy-btn py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">-30分</button>
+            <button @click="addMinutes('lateCheckIn', 10)" class="bouncy-btn py-2 bg-orange-100 text-orange-700 rounded-xl text-xs font-bold">+10分</button>
+            <button @click="addMinutes('lateCheckIn', 30)" class="bouncy-btn py-2 bg-orange-200 text-orange-800 rounded-xl text-xs font-bold">+30分</button>
+            <button @click="lateCheckIn = '09:30'" class="bouncy-btn py-2 bg-rose-100 text-rose-700 rounded-xl text-xs font-bold">09:30</button>
+          </div>
+        </div>
+
+        <!-- 3. 全天假 -->
+        <div v-if="leaveType === 'FULL_DAY'" class="text-center py-4 space-y-2">
+          <div class="text-4xl">🏖️</div>
+          <p class="font-bold text-slate-800 dark:text-slate-200">全日請假 8.0 小時</p>
+          <p class="text-xs text-slate-500">
+            按正常上班時間辦理：08:30 ～ 17:30。
+          </p>
+        </div>
+
+        <!-- 4. 上午休假 -->
+        <div v-if="leaveType === 'HALF_MORNING'" class="text-center py-4 space-y-2">
+          <div class="text-4xl">🌤️</div>
+          <p class="font-bold text-slate-800 dark:text-slate-200">上午請假 4.0 小時</p>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            下午上班時間固定為 <span class="font-black text-emerald-600">13:30 至 17:30</span>，不具備彈性時段。
+          </p>
+        </div>
+
+        <!-- 5. 下午休假 -->
         <div v-if="leaveType === 'HALF_AFTERNOON'" class="space-y-3">
           <label class="block text-sm font-black text-slate-700 dark:text-slate-200">
             ☀️ 上午到班刷卡時間 (08:00~09:00)
@@ -174,52 +190,34 @@
           </div>
         </div>
 
-        <!-- 情境 4: 上午半日請假 -->
-        <div v-if="leaveType === 'HALF_MORNING'" class="text-center py-4 space-y-2">
-          <div class="text-4xl">🌤️</div>
-          <p class="font-bold text-slate-800 dark:text-slate-200">上午請假 4.0 小時</p>
-          <p class="text-xs text-slate-500 leading-relaxed">
-            下午上班時間固定為 <span class="font-black text-emerald-600">13:30 至 17:30</span>，不具備彈性時段。
-          </p>
-        </div>
-
-        <!-- 情境 5: 全日請假 -->
-        <div v-if="leaveType === 'FULL_DAY'" class="text-center py-4 space-y-2">
-          <div class="text-4xl">🏖️</div>
-          <p class="font-bold text-slate-800 dark:text-slate-200">全日請假 8.0 小時</p>
-          <p class="text-xs text-slate-500">
-            按正常上班時間辦理：08:30 ～ 17:30。
-          </p>
-        </div>
-
-        <!-- 情境 6: 日間中途請假 -->
+        <!-- 6. 中途請假 -->
         <div v-if="leaveType === 'MID_LEAVE'" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <span class="block text-xs font-bold text-slate-500 mb-1">外出去程</span>
+              <span class="block text-xs font-bold text-slate-500 mb-1">請假開始時間</span>
               <input type="time" v-model="midLeaveStart"
                      class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-purple-200 rounded-2xl p-2.5 text-lg font-bold font-mono text-center">
             </div>
             <div>
-              <span class="block text-xs font-bold text-slate-500 mb-1">返回勤區</span>
+              <span class="block text-xs font-bold text-slate-500 mb-1">請假結束時間</span>
               <input type="time" v-model="midLeaveEnd"
                      class="w-full bg-amber-50/60 dark:bg-slate-800 border-2 border-purple-200 rounded-2xl p-2.5 text-lg font-bold font-mono text-center">
             </div>
           </div>
           <p class="text-[11px] text-purple-600 dark:text-purple-400 font-semibold text-center">
-            自動避開 12:30～13:30 午休 1 小時，不重複扣假
+            舊系統 KEY 法與實際請假時間相同（自動避開 12:30~13:30 午休）
           </p>
         </div>
 
       </div>
 
-      <!-- 智能防呆警示提醒 -->
+      <!-- 防呆警示提醒 -->
       <div v-if="result.warning" class="p-3.5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 text-xs font-bold flex items-start gap-2">
         <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
         <span>{{ result.warning }}</span>
       </div>
 
-      <!-- 雙系統計算成果對照卡 (Aptivo 圓角色塊風格) -->
+      <!-- 雙系統計算成果對照卡 -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
         
         <!-- 新系統區塊 -->
@@ -235,33 +233,25 @@
           </div>
         </div>
 
-        <!-- 舊系統填單區塊 (重要亮色標示) -->
+        <!-- 舊系統填單區塊 -->
         <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative">
           <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-black text-amber-800 dark:text-amber-400">舊系統【差假單 KEY 法】</span>
-            <span class="text-xs font-bold text-amber-700">08:30~17:30 限制</span>
+            <span class="text-xs font-bold text-amber-700">{{ leaveType === 'MID_LEAVE' ? '依實際請假時間' : '08:30~17:30 限制' }}</span>
           </div>
           <div class="text-2xl font-black font-mono text-amber-900 dark:text-amber-200 my-1">
             {{ result.oldSystemInterval }}
           </div>
           <p class="text-[11px] text-amber-700/80 dark:text-amber-400/80">
-            請假時數：<strong>{{ result.hours }}</strong> 小時（已自動跳過 12:30~13:30 午休）
+            請假時數：<strong>{{ result.hours }}</strong> 小時（已跳過 12:30~13:30 午休）
           </p>
         </div>
-
-        <!-- 一鍵複製按鈕 (超大飽滿圓角按鈕) -->
-        <button @click="copyOldSystemText" 
-                class="bouncy-btn w-full py-4 rounded-2xl font-black text-base shadow-lg transition flex items-center justify-center gap-2"
-                :class="copied ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-slate-900/20'">
-          <i :data-lucide="copied ? 'check-circle' : 'copy'" class="w-5 h-5"></i>
-          <span>{{ copied ? '已複製舊系統區間！' : '複製舊系統時間' }}</span>
-        </button>
 
       </div>
 
     </main>
 
-    <!-- 最下方主選單 (Bottom Navigation Bar)：固定 6 個情境圖示，仿 Aptivo 底部 Dock -->
+    <!-- 最下方主選單：依指定順序排列 6 個情境 -->
     <nav class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
@@ -280,7 +270,7 @@
           {{ t.shortName }}
         </span>
 
-        <!-- 選取指示小黑點 (Aptivo 特色) -->
+        <!-- 選取指示小黑點 -->
         <span v-if="leaveType === t.id" class="w-1 h-1 bg-slate-900 dark:bg-white rounded-full mt-0.5"></span>
       </button>
     </nav>
@@ -294,19 +284,9 @@
       setup() {
         const isDark = ref(false);
         const isLargeFont = ref(false);
-        const copied = ref(false);
 
-        // 6大主要情境選項定義（搭配鮮豔糖果色卡與圖示）
+        // 6 個情境：早走退勤、逾9點到、全天假、上午休假、下午休假、中途請假
         const leaveTypes = [
-          { 
-            id: 'LATE_ARRIVE', 
-            name: '遲到 / 早上請假', 
-            shortName: '逾9點到', 
-            sub: '逾 09:00 起算，固定 18:00 下班',
-            icon: 'sun-medium',
-            activeBg: 'bg-[#FF6B6B]',
-            cardBg: 'bg-gradient-to-r from-[#FF6B6B] to-[#FF8E72]'
-          },
           { 
             id: 'EARLY_LEAVE', 
             name: '提早退勤', 
@@ -317,22 +297,13 @@
             cardBg: 'bg-gradient-to-r from-[#45B7D1] to-[#2D9CDB]'
           },
           { 
-            id: 'HALF_AFTERNOON', 
-            name: '下午半日假', 
-            shortName: '下午休假', 
-            sub: '上午須在勤滿 4 小時後刷退',
-            icon: 'coffee',
-            activeBg: 'bg-[#FFA07A]',
-            cardBg: 'bg-gradient-to-r from-[#FFA07A] to-[#FF7F50]'
-          },
-          { 
-            id: 'HALF_MORNING', 
-            name: '上午半日假', 
-            shortName: '上午休假', 
-            sub: '下午 13:30 準時打卡無彈性',
-            icon: 'briefcase',
-            activeBg: 'bg-[#4ECDC4]',
-            cardBg: 'bg-gradient-to-r from-[#4ECDC4] to-[#2AB7CA]'
+            id: 'LATE_ARRIVE', 
+            name: '遲到 / 早上請假', 
+            shortName: '逾9點到', 
+            sub: '逾 09:00 起算，固定 18:00 下班',
+            icon: 'sun-medium',
+            activeBg: 'bg-[#FF6B6B]',
+            cardBg: 'bg-gradient-to-r from-[#FF6B6B] to-[#FF8E72]'
           },
           { 
             id: 'FULL_DAY', 
@@ -344,35 +315,51 @@
             cardBg: 'bg-gradient-to-r from-[#FFBE0B] to-[#FB5607]'
           },
           { 
+            id: 'HALF_MORNING', 
+            name: '上午半日假', 
+            shortName: '上午休假', 
+            sub: '下午 13:30 準時打卡無彈性',
+            icon: 'briefcase',
+            activeBg: 'bg-[#4ECDC4]',
+            cardBg: 'bg-gradient-to-r from-[#4ECDC4] to-[#2AB7CA]'
+          },
+          { 
+            id: 'HALF_AFTERNOON', 
+            name: '下午半日假', 
+            shortName: '下午休假', 
+            sub: '上午須在勤滿 4 小時後刷退',
+            icon: 'coffee',
+            activeBg: 'bg-[#FFA07A]',
+            cardBg: 'bg-gradient-to-r from-[#FFA07A] to-[#FF7F50]'
+          },
+          { 
             id: 'MID_LEAVE', 
-            name: '中途公出/請假', 
-            shortName: '中途外出', 
-            sub: '跳過 12:30~13:30 午休不計',
+            name: '中途請假', 
+            shortName: '中途請假', 
+            sub: '舊系統同實際時間，避開12:30~13:30',
             icon: 'hourglass',
             activeBg: 'bg-[#9B89B3]',
             cardBg: 'bg-gradient-to-r from-[#9B89B3] to-[#735D78]'
           },
         ];
 
-        const leaveType = ref('LATE_ARRIVE');
+        const leaveType = ref('EARLY_LEAVE');
         const morningCheckIn = ref('08:30');
         const lateCheckIn = ref('09:20');
         const normalCheckIn = ref('08:15');
         const planEarlyCheckOut = ref('15:15');
         const midLeaveStart = ref('10:00');
-        const midLeaveEnd = ref('11:30');
+        const midLeaveEnd = ref('11:00');
 
         const currentTypeData = computed(() => {
           return leaveTypes.find(t => t.id === leaveType.value) || leaveTypes[0];
         });
 
-        // 換頁並重新渲染 Lucide 圖示
         const selectTab = (id) => {
           leaveType.value = id;
           nextTick(() => lucide.createIcons());
         };
 
-        // 時間計算輔助函式
         const timeToMinutes = (str) => {
           if (!str) return 0;
           const [h, m] = str.split(':').map(Number);
@@ -393,7 +380,7 @@
           lateCheckIn.value = minutesToTime(curr);
         };
 
-        // 舊系統 08:30 ~ 17:30 映射計算 (避開 12:30~13:30)
+        // 舊系統 08:30 ~ 17:30 映射
         const mapToOldSystem = (hours, dir = 'FROM_START') => {
           const totalMins = Math.round(hours * 60);
           if (totalMins <= 0) return '無須請假';
@@ -427,6 +414,47 @@
           let warning = '';
 
           switch (leaveType.value) {
+            case 'EARLY_LEAVE': {
+              const inMin = timeToMinutes(normalCheckIn.value);
+              const outMin = timeToMinutes(planEarlyCheckOut.value);
+              const stdOutMin = inMin + 9 * 60; // 8hr在勤 + 1hr午休
+              if (outMin >= stdOutMin) {
+                hours = 0;
+                newSystemText = '已服滿 8 小時在勤時數。';
+                oldSystemInterval = '無須請假';
+                targetCheckOut = minutesToTime(stdOutMin);
+              } else {
+                const diffMin = stdOutMin - outMin;
+                const roundedMins = ceilTo30(diffMin);
+                hours = roundedMins / 60;
+                newSystemText = `提早退勤請假 (自 ${planEarlyCheckOut.value} 起算)`;
+                oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
+                targetCheckOut = `已於 ${planEarlyCheckOut.value} 提前刷退`;
+              }
+              break;
+            }
+
+            case 'LATE_ARRIVE': {
+              const arrMin = timeToMinutes(lateCheckIn.value);
+              const limitMin = 9 * 60; // 09:00
+              if (arrMin <= limitMin) {
+                hours = 0;
+                newSystemText = '未超過 09:00，屬正常彈性上班範圍。';
+                oldSystemInterval = '無須請假';
+                targetCheckOut = minutesToTime(arrMin + 9 * 60);
+              } else {
+                const diffMin = arrMin - limitMin;
+                const roundedMins = ceilTo30(diffMin);
+                hours = roundedMins / 60;
+                const leaveEnd = limitMin + roundedMins;
+                newSystemText = `09:00 ～ ${minutesToTime(leaveEnd)}`;
+                oldSystemInterval = mapToOldSystem(hours, 'FROM_START');
+                targetCheckOut = '18:00 (逾09:00到勤強制固定18:00下班)';
+                warning = `您於 ${lateCheckIn.value} 到勤，已逾 09:00。依規定請假由 09:00 起算並以30分鐘進位，下班固定為 18:00。`;
+              }
+              break;
+            }
+
             case 'FULL_DAY':
               hours = 8.0;
               newSystemText = '08:30 ～ 17:30 (整日請假)';
@@ -453,56 +481,16 @@
               break;
             }
 
-            case 'LATE_ARRIVE': {
-              const arrMin = timeToMinutes(lateCheckIn.value);
-              const limitMin = 9 * 60; // 09:00
-              if (arrMin <= limitMin) {
-                hours = 0;
-                newSystemText = '未超過 09:00，屬正常彈性上班範圍。';
-                oldSystemInterval = '無須請假';
-                targetCheckOut = minutesToTime(arrMin + 9 * 60);
-              } else {
-                const diffMin = arrMin - limitMin;
-                const roundedMins = ceilTo30(diffMin);
-                hours = roundedMins / 60;
-                const leaveEnd = limitMin + roundedMins;
-                newSystemText = `09:00 ～ ${minutesToTime(leaveEnd)}`;
-                oldSystemInterval = mapToOldSystem(hours, 'FROM_START');
-                targetCheckOut = '18:00 (逾09:00到勤強制固定18:00下班)';
-                warning = `您於 ${lateCheckIn.value} 到勤，已逾 09:00。依規定請假由 09:00 起算並以30分鐘進位，下班固定為 18:00。`;
-              }
-              break;
-            }
-
-            case 'EARLY_LEAVE': {
-              const inMin = timeToMinutes(normalCheckIn.value);
-              const outMin = timeToMinutes(planEarlyCheckOut.value);
-              const stdOutMin = inMin + 9 * 60; // 8hr在勤 + 1hr午休
-              if (outMin >= stdOutMin) {
-                hours = 0;
-                newSystemText = '已服滿 8 小時在勤時數。';
-                oldSystemInterval = '無須請假';
-                targetCheckOut = minutesToTime(stdOutMin);
-              } else {
-                const diffMin = stdOutMin - outMin;
-                const roundedMins = ceilTo30(diffMin);
-                hours = roundedMins / 60;
-                newSystemText = `提早退勤請假 (自 ${planEarlyCheckOut.value} 起算)`;
-                oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
-                targetCheckOut = `已於 ${planEarlyCheckOut.value} 提前刷退`;
-              }
-              break;
-            }
-
             case 'MID_LEAVE': {
               let sMin = timeToMinutes(midLeaveStart.value);
               let eMin = timeToMinutes(midLeaveEnd.value);
               if (eMin <= sMin) {
-                warning = '返回時間必須晚於離開時間！';
+                warning = '結束時間必須晚於開始時間！';
                 hours = 0;
                 newSystemText = '時間區間有誤';
                 oldSystemInterval = '無';
               } else {
+                // 扣除中午 12:30 ~ 13:30 午休
                 const lunchStart = 12 * 60 + 30;
                 const lunchEnd = 13 * 60 + 30;
                 const overlapStart = Math.max(sMin, lunchStart);
@@ -512,8 +500,14 @@
                 const rawDuration = (eMin - sMin) - overlap;
                 const roundedMins = ceilTo30(rawDuration);
                 hours = roundedMins / 60;
-                newSystemText = `${midLeaveStart.value} ～ ${midLeaveEnd.value} (實扣 ${hours} hr)`;
-                oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
+
+                newSystemText = `${midLeaveStart.value} ～ ${midLeaveEnd.value}`;
+                // 舊系統直接填寫實際請假時間
+                oldSystemInterval = `${midLeaveStart.value} ～ ${midLeaveEnd.value}`;
+
+                if (overlap > 0) {
+                  warning = '請假區間包含 12:30～13:30 午休時段，系統已自動扣除該 1 小時休息時間。';
+                }
               }
               break;
             }
@@ -521,17 +515,6 @@
 
           return { hours, newSystemText, oldSystemInterval, targetCheckOut, warning };
         });
-
-        // 複製舊系統時間
-        const copyOldSystemText = async () => {
-          try {
-            await navigator.clipboard.writeText(result.value.oldSystemInterval);
-            copied.value = true;
-            setTimeout(() => { copied.value = false; }, 2000);
-          } catch (e) {
-            console.error(e);
-          }
-        };
 
         // 深淺色切換
         const toggleDarkMode = () => {
@@ -557,7 +540,6 @@
         return {
           isDark,
           isLargeFont,
-          copied,
           leaveType,
           leaveTypes,
           currentTypeData,
@@ -570,7 +552,6 @@
           midLeaveEnd,
           result,
           addMinutes,
-          copyOldSystemText,
           toggleDarkMode
         };
       }
