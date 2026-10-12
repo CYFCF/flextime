@@ -141,7 +141,6 @@
         
         <!-- 左欄：操作輸入面板卡片 -->
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 lg:p-6 shadow-sm border border-orange-100/60 dark:border-slate-800 space-y-4">
-          <div class="text-xs font-black text-slate-400 uppercase tracking-wider">輸入出勤打卡資料</div>
           
           <!-- 1. 到班後請假 -->
           <div v-if="leaveType === 'EARLY_LEAVE'" class="space-y-3">
@@ -154,10 +153,10 @@
               <time-picker-24 v-model="planEarlyCheckOut" color="sky"></time-picker-24>
             </div>
             <div class="grid grid-cols-4 gap-2 pt-1">
+              <button @click="planEarlyCheckOut = '12:15'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">12:15 走</button>
               <button @click="planEarlyCheckOut = '14:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">14:00 走</button>
               <button @click="planEarlyCheckOut = '15:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">15:00 走</button>
               <button @click="planEarlyCheckOut = '16:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">16:00 走</button>
-              <button @click="planEarlyCheckOut = '16:30'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">16:30 走</button>
             </div>
           </div>
 
@@ -236,7 +235,6 @@
 
         <!-- 右欄：雙系統計算成果對照卡 -->
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 lg:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
-          <div class="text-xs font-black text-slate-400 uppercase tracking-wider">系統轉換試算成果</div>
           
           <!-- 新系統區塊 -->
           <div class="p-4 lg:p-5 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
@@ -378,8 +376,8 @@
         const leaveType = ref('EARLY_LEAVE');
         const morningCheckIn = ref('08:30');
         const lateCheckIn = ref('09:20');
-        const normalCheckIn = ref('07:55');
-        const planEarlyCheckOut = ref('14:00');
+        const normalCheckIn = ref('08:15');
+        const planEarlyCheckOut = ref('12:10');
         const fullDayCheckIn = ref('08:00');
         const midLeaveStart = ref('10:00');
         const midLeaveEnd = ref('11:00');
@@ -457,7 +455,7 @@
                 warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「到班前請假」情境辦理。`;
               }
 
-              const stdOutMin = effectiveInMin + 9 * 60;
+              const stdOutMin = effectiveInMin + 9 * 60; // 滿勤打卡點（含 1 小時午休）
 
               if (outMin >= stdOutMin) {
                 hours = 0;
@@ -465,10 +463,23 @@
                 oldSystemInterval = '無須請假';
                 targetCheckOut = `${minutesToTime(stdOutMin)} 即可正常刷退`;
               } else {
-                const diffMin = stdOutMin - outMin;
+                // 精確計算在勤時間與缺工時數，排除午休 12:30~13:30 重複計算
+                const morningWorkDone = Math.max(0, Math.min(outMin, 12 * 60 + 30) - effectiveInMin);
+                const afternoonWorkDone = Math.max(0, outMin - Math.max(outMin, 13 * 60 + 30));
+                const totalWorkDone = morningWorkDone + afternoonWorkDone;
+
+                const requiredWorkMin = 8 * 60; // 8 小時應在勤工時
+                const diffMin = Math.max(0, requiredWorkMin - totalWorkDone);
                 const roundedMins = ceilTo30(diffMin);
                 hours = roundedMins / 60;
 
+                // 判斷上午是否已滿 4 小時（240 分鐘）
+                const fourHoursTargetMin = effectiveInMin + 240;
+                if (outMin < fourHoursTargetMin) {
+                  warning = `提醒：上午在勤僅 ${Math.floor(morningWorkDone / 60)} 小時 ${morningWorkDone % 60} 分（未滿 4 小時），未達「下午半日假」門檻，依缺工進位須請假 ${hours} 小時！若待至 ${minutesToTime(fourHoursTargetMin)} 刷退，則下午只需請假 4.0 小時。`;
+                }
+
+                // 新系統區間依實際缺工段標示
                 newSystemText = `${planEarlyCheckOut.value} ～ ${minutesToTime(stdOutMin)}`;
                 oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
                 targetCheckOut = `${planEarlyCheckOut.value} 即可刷退`;
