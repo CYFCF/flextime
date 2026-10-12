@@ -466,7 +466,7 @@
                 warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「到班前請假」情境辦理。`;
               }
 
-              const stdOutMin = effectiveInMin + 9 * 60; // 滿勤應退勤時間 (含 1 小時午休)
+              const stdOutMin = effectiveInMin + 9 * 60; // 滿勤打卡點 (含 1 小時午休)
 
               if (outMin >= stdOutMin) {
                 hours = 0;
@@ -474,14 +474,12 @@
                 oldSystemInterval = '無須請假';
                 targetCheckOut = `${minutesToTime(stdOutMin)} 即可正常刷退`;
               } else {
-                // 正確計算在勤時間：
-                // 1. 上午工時 (最多算到 12:30)
+                // 正確計算在勤時間
                 const morningWorkDone = Math.max(0, Math.min(outMin, 12 * 60 + 30) - effectiveInMin);
-                // 2. 下午工時 (從 13:30 開始算)
                 const afternoonWorkDone = Math.max(0, outMin - (13 * 60 + 30));
                 const totalWorkDone = morningWorkDone + afternoonWorkDone;
 
-                const requiredWorkMin = 8 * 60; // 應工作 8 小時
+                const requiredWorkMin = 8 * 60;
                 const diffMin = Math.max(0, requiredWorkMin - totalWorkDone);
                 const roundedMins = ceilTo30(diffMin);
                 hours = roundedMins / 60;
@@ -492,7 +490,10 @@
                   warning = `提醒：上午在勤僅 ${Math.floor(morningWorkDone / 60)} 小時 ${morningWorkDone % 60} 分（未滿 4 小時），未達「下午半日假」門檻，依缺工進位須請假 ${hours} 小時！若待至 ${minutesToTime(fourHoursTargetMin)} 刷退，則下午只需請假 4.0 小時。`;
                 }
 
-                newSystemText = `${planEarlyCheckOut.value} ～ ${minutesToTime(stdOutMin)}`;
+                // 新系統差假單結束時間 = 提前刷退時間 + 進位後的請假總分鐘數 (保證區間時長 = 請假時數)
+                const newSystemEndMin = outMin + roundedMins;
+                newSystemText = `${planEarlyCheckOut.value} ～ ${minutesToTime(newSystemEndMin)}`;
+                
                 oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
                 targetCheckOut = `${planEarlyCheckOut.value} 即可刷退`;
               }
