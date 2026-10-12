@@ -63,17 +63,6 @@
     .bouncy-btn:active {
       transform: scale(0.92);
     }
-    
-    /* 強制透明原生 input，完全遮罩在上層捕獲點擊喚醒滾輪 */
-    .invisible-native-picker {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      z-index: 10;
-    }
   </style>
 </head>
 <body class="h-full bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 select-none">
@@ -230,7 +219,7 @@
       <!-- 雙系統計算成果對照卡 -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
         
-        <!-- 新系統區塊（已修訂為「適用彈性工時計算」） -->
+        <!-- 新系統區塊（新系統【差假單 KEY 法】） -->
         <div class="p-4 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-sky-800 dark:text-sky-400">新系統【差假單 KEY 法】</span>
@@ -255,7 +244,7 @@
           </p>
         </div>
 
-        <!-- 舊系統填單區塊 -->
+        <!-- 舊系統填單區塊（舊系統【差假單 KEY 法】） -->
         <div class="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-amber-800 dark:text-amber-400">舊系統【差假單 KEY 法】</span>
@@ -606,11 +595,13 @@
       }
     });
 
-    // 強制跨系統顯示 24 小時制（HH:mm）的時間選擇器元件
+    // 直打 + 原生時間彈窗雙軌整合元件 (保證所有裝置均可點選與輸入)
     app.component('time-picker-24', {
       props: ['modelValue', 'color'],
       emits: ['update:modelValue'],
       setup(props, { emit }) {
+        const pickerRef = ref(null);
+
         const borderClass = computed(() => {
           if (props.color === 'sky') return 'border-blue-200 dark:border-slate-700 focus-within:border-sky-400';
           if (props.color === 'rose') return 'border-orange-200 dark:border-slate-700 focus-within:border-rose-400';
@@ -619,31 +610,73 @@
           return 'border-slate-200 dark:border-slate-700';
         });
 
-        const display24Hour = computed(() => {
-          if (!props.modelValue) return '00:00';
-          const [h, m] = props.modelValue.split(':');
-          const formattedH = String(parseInt(h || '0', 10)).padStart(2, '0');
-          const formattedM = String(parseInt(m || '0', 10)).padStart(2, '0');
-          return `${formattedH}:${formattedM}`;
-        });
+        // 鍵盤輸入事件 (支援 0830 自動變 08:30)
+        const onTextInput = (e) => {
+          let val = e.target.value.replace(/[^0-9]/g, '');
+          if (val.length > 4) val = val.slice(0, 4);
+          if (val.length === 4) {
+            const h = Math.min(23, parseInt(val.slice(0, 2), 10));
+            const m = Math.min(59, parseInt(val.slice(2, 4), 10));
+            emit('update:modelValue', `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+          }
+        };
 
-        const onChange = (e) => {
+        const onTextBlur = (e) => {
+          let val = e.target.value.replace(/[^0-9]/g, '');
+          if (val.length === 3) val = '0' + val;
+          if (val.length === 4) {
+            const h = Math.min(23, parseInt(val.slice(0, 2), 10));
+            const m = Math.min(59, parseInt(val.slice(2, 4), 10));
+            emit('update:modelValue', `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+          } else {
+            // 還原為有效值
+            e.target.value = props.modelValue || '08:00';
+          }
+        };
+
+        // 點擊時鐘按鈕觸發原生時間滾輪
+        const triggerPicker = () => {
+          if (pickerRef.value) {
+            if (typeof pickerRef.value.showPicker === 'function') {
+              pickerRef.value.showPicker();
+            } else {
+              pickerRef.value.focus();
+              pickerRef.value.click();
+            }
+          }
+        };
+
+        const onNativeChange = (e) => {
           emit('update:modelValue', e.target.value);
         };
 
-        return { borderClass, display24Hour, onChange };
+        return { pickerRef, borderClass, onTextInput, onTextBlur, triggerPicker, onNativeChange };
       },
       template: `
-        <div :class="borderClass" class="relative h-14 w-full bg-amber-50/60 dark:bg-slate-800 rounded-2xl border-2 flex items-center justify-between px-5 transition cursor-pointer overflow-hidden">
-          <span class="text-xl font-bold font-mono tracking-wider text-slate-800 dark:text-slate-100 select-none">
-            {{ display24Hour }}
-          </span>
-          <i data-lucide="clock" class="w-5 h-5 text-slate-400 opacity-60"></i>
-          
-          <input type="time"
+        <div :class="borderClass" class="relative h-14 w-full bg-amber-50/60 dark:bg-slate-800 rounded-2xl border-2 flex items-center justify-between px-4 transition">
+          <!-- 文字輸入框：可自由點選、點擊鍵盤直接鍵入數字 -->
+          <input type="text"
+                 inputmode="numeric"
                  :value="modelValue"
-                 @input="onChange"
-                 class="invisible-native-picker">
+                 @input="onTextInput"
+                 @blur="onTextBlur"
+                 placeholder="08:30"
+                 class="w-full bg-transparent text-xl font-bold font-mono tracking-wider text-slate-800 dark:text-slate-100 outline-none text-left select-text">
+
+          <!-- 點選時鐘圖示：可叫起手機原生 iOS 滾輪與 Android 鐘面 -->
+          <button type="button" 
+                  @click="triggerPicker"
+                  class="p-2 -mr-1 rounded-xl hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition"
+                  title="開啟時間選取器">
+            <i data-lucide="clock" class="w-5 h-5 text-slate-400"></i>
+          </button>
+
+          <!-- 隱藏在按鈕下方的原生 input 用於觸發原生滾輪 -->
+          <input ref="pickerRef"
+                 type="time"
+                 :value="modelValue"
+                 @change="onNativeChange"
+                 class="sr-only">
         </div>
       `
     });
