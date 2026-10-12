@@ -125,7 +125,7 @@
     <!-- 中間主要滾動區：電腦版自動變為雙欄佈局 (grid-cols-2) -->
     <main class="flex-1 overflow-y-auto px-5 lg:px-8 pb-28 lg:pb-8 pt-3 no-scrollbar space-y-4">
       
-      <!-- 當前情境橫幅標籤（綁定 key 確保切換情境時圖示一定即時更新） -->
+      <!-- 當前情境橫幅標籤 -->
       <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 lg:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
         <div class="space-y-0.5">
           <div class="text-[11px] font-bold uppercase tracking-wider opacity-85">目前選取情境</div>
@@ -145,7 +145,7 @@
         <span>{{ result.warning }}</span>
       </div>
 
-      <!-- 電腦版左右雙欄核心區域 (左邊：輸入面板，右邊：結果對照) -->
+      <!-- 電腦版左右雙欄核心區域 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start">
         
         <!-- 左欄：操作輸入面板卡片 -->
@@ -161,7 +161,6 @@
               <label class="block text-xs font-bold text-slate-500 mb-1.5">預計提前刷退時間</label>
               <time-picker-24 v-model="planEarlyCheckOut" color="sky"></time-picker-24>
             </div>
-            <!-- 下方快捷按鈕：14:00、15:00、16:00、16:30 -->
             <div class="grid grid-cols-4 gap-2 pt-1">
               <button @click="planEarlyCheckOut = '14:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">14:00 走</button>
               <button @click="planEarlyCheckOut = '15:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">15:00 走</button>
@@ -467,7 +466,7 @@
                 warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「到班前請假」情境辦理。`;
               }
 
-              const stdOutMin = effectiveInMin + 9 * 60;
+              const stdOutMin = effectiveInMin + 9 * 60; // 滿勤應退勤時間 (含 1 小時午休)
 
               if (outMin >= stdOutMin) {
                 hours = 0;
@@ -475,15 +474,19 @@
                 oldSystemInterval = '無須請假';
                 targetCheckOut = `${minutesToTime(stdOutMin)} 即可正常刷退`;
               } else {
+                // 正確計算在勤時間：
+                // 1. 上午工時 (最多算到 12:30)
                 const morningWorkDone = Math.max(0, Math.min(outMin, 12 * 60 + 30) - effectiveInMin);
-                const afternoonWorkDone = Math.max(0, outMin - Math.max(outMin, 13 * 60 + 30));
+                // 2. 下午工時 (從 13:30 開始算)
+                const afternoonWorkDone = Math.max(0, outMin - (13 * 60 + 30));
                 const totalWorkDone = morningWorkDone + afternoonWorkDone;
 
-                const requiredWorkMin = 8 * 60;
+                const requiredWorkMin = 8 * 60; // 應工作 8 小時
                 const diffMin = Math.max(0, requiredWorkMin - totalWorkDone);
                 const roundedMins = ceilTo30(diffMin);
                 hours = roundedMins / 60;
 
+                // 上午未滿 4 小時之防呆判定
                 const fourHoursTargetMin = effectiveInMin + 240;
                 if (outMin < fourHoursTargetMin) {
                   warning = `提醒：上午在勤僅 ${Math.floor(morningWorkDone / 60)} 小時 ${morningWorkDone % 60} 分（未滿 4 小時），未達「下午半日假」門檻，依缺工進位須請假 ${hours} 小時！若待至 ${minutesToTime(fourHoursTargetMin)} 刷退，則下午只需請假 4.0 小時。`;
