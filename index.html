@@ -5,15 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>差假工時計算器</title>
 
-  <!-- 手機加入主畫面 Icon 與 Favicon 設定 -->
-  <link rel="icon" type="image/png" href="icon.png">
-  <link rel="apple-touch-icon" href="icon.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+  <!-- 手機加入主畫面 Icon 與 Favicon 設定 (完整絕對路徑防快取) -->
+  <link rel="icon" type="image/png" href="https://cyfcf.github.io/flextime/icon.png">
+  <link rel="shortcut icon" href="https://cyfcf.github.io/flextime/icon.png">
+  <link rel="apple-touch-icon" href="https://cyfcf.github.io/flextime/icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="https://cyfcf.github.io/flextime/icon.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="https://cyfcf.github.io/flextime/icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://cyfcf.github.io/flextime/icon.png">
+  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="差假計算器">
 
-  <!-- 避免分享連結/預覽抓取到舊版快取字眼 -->
+  <!-- 社群與 Open Graph 圖示 -->
   <meta name="description" content="差假工時計算器 - 彈性工時與差假系統轉換工具">
   <meta property="og:title" content="差假工時計算器">
   <meta property="og:description" content="差假工時計算器 - 彈性工時與差假系統轉換工具">
@@ -75,12 +79,14 @@
   </style>
 </head>
 <body class="h-full bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 select-none">
+  <!-- 外層自適應：手機為 max-w-md，電腦端展開為 max-w-5xl 寬螢幕雙欄比例 -->
   <div id="app" class="h-full flex flex-col max-w-md lg:max-w-5xl mx-auto relative overflow-hidden bg-amber-50/40 dark:bg-slate-950 shadow-2xl lg:my-4 lg:h-[calc(100vh-2rem)] lg:rounded-3xl lg:border lg:border-slate-200/80 dark:lg:border-slate-800">
     
     <!-- 頂部 Header -->
     <header class="px-5 lg:px-8 pt-4 pb-3 flex-shrink-0 border-b border-slate-100 dark:border-slate-800/60 lg:bg-white/50 dark:lg:bg-slate-900/50 backdrop-blur-md">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
+          <!-- 俏皮花朵吉祥物 -->
           <div class="w-10 h-10 rounded-2xl bg-[#FF6B6B] flex items-center justify-center shadow-md shadow-red-500/20 relative">
             <div class="flex gap-1 mascot-eye">
               <div class="w-2.5 h-3.5 bg-white rounded-full flex items-center justify-center relative">
@@ -106,7 +112,7 @@
         </div>
       </div>
 
-      <!-- 電腦版專屬：頂部情境導航切換列 -->
+      <!-- 電腦版專屬：頂部情境導航切換列（字眼與手機版完全統一） -->
       <div class="hidden lg:grid grid-cols-6 gap-2 pt-4 pb-1">
         <button v-for="t in leaveTypes" :key="t.id"
                 @click="selectTab(t.id)"
@@ -120,10 +126,10 @@
       </div>
     </header>
 
-    <!-- 中間主要滾動區 -->
+    <!-- 中間主要滾動區：電腦版自動變為雙欄佈局 (grid-cols-2) -->
     <main class="flex-1 overflow-y-auto px-5 lg:px-8 pb-28 lg:pb-8 pt-3 no-scrollbar space-y-4">
       
-      <!-- 當前情境橫幅標籤 -->
+      <!-- 當前情境橫幅標籤（綁定 key 保證即時更新 Lucide Icon） -->
       <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 lg:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
         <div class="space-y-0.5">
           <div class="text-[11px] font-bold uppercase tracking-wider opacity-85">目前選取情境</div>
@@ -143,7 +149,7 @@
         <span>{{ result.warning }}</span>
       </div>
 
-      <!-- 電腦版雙欄佈局 -->
+      <!-- 電腦版左右雙欄核心區域 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start">
         
         <!-- 左欄：操作輸入面板卡片 -->
@@ -159,6 +165,7 @@
               <label class="block text-xs font-bold text-slate-500 mb-1.5">預計提前刷退時間</label>
               <time-picker-24 v-model="planEarlyCheckOut" color="sky"></time-picker-24>
             </div>
+            <!-- 下方快捷按鈕：14:00、15:00、16:00、16:30 -->
             <div class="grid grid-cols-4 gap-2 pt-1">
               <button @click="planEarlyCheckOut = '14:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">14:00 走</button>
               <button @click="planEarlyCheckOut = '15:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">15:00 走</button>
@@ -292,7 +299,7 @@
 
     </main>
 
-    <!-- 手機版專屬：最下方主選單 -->
+    <!-- 手機版專屬：最下方主選單 (電腦版自動隱藏 lg:hidden) -->
     <nav class="lg:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
@@ -322,6 +329,7 @@
       setup() {
         const isDark = ref(false);
 
+        // 6 個情境：提早退勤、到班前請、上午休假、下午休假、中途請假、全日班
         const leaveTypes = [
           { 
             id: 'EARLY_LEAVE', 
@@ -395,6 +403,7 @@
           return leaveTypes.find(t => t.id === leaveType.value) || leaveTypes[0];
         });
 
+        // 切換頁籤時主動重新渲染 Lucide SVG，確保橫幅與按鈕圖示 100% 同步
         const selectTab = (id) => {
           leaveType.value = id;
           nextTick(() => {
