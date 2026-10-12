@@ -75,14 +75,12 @@
   </style>
 </head>
 <body class="h-full bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 select-none">
-  <!-- 外層自適應：手機為 max-w-md，電腦端展開為 max-w-5xl 寬螢幕比例 -->
   <div id="app" class="h-full flex flex-col max-w-md lg:max-w-5xl mx-auto relative overflow-hidden bg-amber-50/40 dark:bg-slate-950 shadow-2xl lg:my-4 lg:h-[calc(100vh-2rem)] lg:rounded-3xl lg:border lg:border-slate-200/80 dark:lg:border-slate-800">
     
     <!-- 頂部 Header -->
     <header class="px-5 lg:px-8 pt-4 pb-3 flex-shrink-0 border-b border-slate-100 dark:border-slate-800/60 lg:bg-white/50 dark:lg:bg-slate-900/50 backdrop-blur-md">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <!-- 俏皮花朵吉祥物 -->
           <div class="w-10 h-10 rounded-2xl bg-[#FF6B6B] flex items-center justify-center shadow-md shadow-red-500/20 relative">
             <div class="flex gap-1 mascot-eye">
               <div class="w-2.5 h-3.5 bg-white rounded-full flex items-center justify-center relative">
@@ -108,7 +106,7 @@
         </div>
       </div>
 
-      <!-- 電腦版專屬：頂部情境導航切換列（用字與手機版保持 100% 一致） -->
+      <!-- 電腦版專屬：頂部情境導航切換列 -->
       <div class="hidden lg:grid grid-cols-6 gap-2 pt-4 pb-1">
         <button v-for="t in leaveTypes" :key="t.id"
                 @click="selectTab(t.id)"
@@ -122,7 +120,7 @@
       </div>
     </header>
 
-    <!-- 中間主要滾動區：電腦版自動變為雙欄佈局 (grid-cols-2) -->
+    <!-- 中間主要滾動區 -->
     <main class="flex-1 overflow-y-auto px-5 lg:px-8 pb-28 lg:pb-8 pt-3 no-scrollbar space-y-4">
       
       <!-- 當前情境橫幅標籤 -->
@@ -145,7 +143,7 @@
         <span>{{ result.warning }}</span>
       </div>
 
-      <!-- 電腦版左右雙欄核心區域 -->
+      <!-- 電腦版雙欄佈局 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start">
         
         <!-- 左欄：操作輸入面板卡片 -->
@@ -245,7 +243,7 @@
         <!-- 右欄：雙系統計算成果對照卡 -->
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 lg:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
           
-          <!-- 新系統區塊 -->
+          <!-- 新系統區塊（方案 A：迄點對齊滿勤下班，起點倒推滿時數） -->
           <div class="p-4 lg:p-5 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-black text-sky-800 dark:text-sky-400">新系統【差假單 KEY 法】</span>
@@ -294,7 +292,7 @@
 
     </main>
 
-    <!-- 手機版專屬：最下方主選單 (電腦版自動隱藏 lg:hidden) -->
+    <!-- 手機版專屬：最下方主選單 -->
     <nav class="lg:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
@@ -324,7 +322,6 @@
       setup() {
         const isDark = ref(false);
 
-        // 6 個情境：提早退勤、到班前請、上午休假、下午休假、中途請假、全日班
         const leaveTypes = [
           { 
             id: 'EARLY_LEAVE', 
@@ -466,7 +463,8 @@
                 warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「到班前請假」情境辦理。`;
               }
 
-              const stdOutMin = effectiveInMin + 9 * 60; // 滿勤打卡點 (含 1 小時午休)
+              // 滿勤應退勤時間 (08:15到班即為 17:15)
+              const stdOutMin = effectiveInMin + 9 * 60;
 
               if (outMin >= stdOutMin) {
                 hours = 0;
@@ -474,7 +472,7 @@
                 oldSystemInterval = '無須請假';
                 targetCheckOut = `${minutesToTime(stdOutMin)} 即可正常刷退`;
               } else {
-                // 正確計算在勤時間
+                // 正確計算在勤時間與缺工時數
                 const morningWorkDone = Math.max(0, Math.min(outMin, 12 * 60 + 30) - effectiveInMin);
                 const afternoonWorkDone = Math.max(0, outMin - (13 * 60 + 30));
                 const totalWorkDone = morningWorkDone + afternoonWorkDone;
@@ -484,16 +482,22 @@
                 const roundedMins = ceilTo30(diffMin);
                 hours = roundedMins / 60;
 
-                // 上午未滿 4 小時之防呆判定
+                // 上午未滿 4 小時之防呆
                 const fourHoursTargetMin = effectiveInMin + 240;
                 if (outMin < fourHoursTargetMin) {
                   warning = `提醒：上午在勤僅 ${Math.floor(morningWorkDone / 60)} 小時 ${morningWorkDone % 60} 分（未滿 4 小時），未達「下午半日假」門檻，依缺工進位須請假 ${hours} 小時！若待至 ${minutesToTime(fourHoursTargetMin)} 刷退，則下午只需請假 4.0 小時。`;
                 }
 
-                // 新系統差假單結束時間 = 提前刷退時間 + 進位後的請假總分鐘數 (保證區間時長 = 請假時數)
-                const newSystemEndMin = outMin + roundedMins;
-                newSystemText = `${planEarlyCheckOut.value} ～ ${minutesToTime(newSystemEndMin)}`;
+                // 【方案 A 核心】：迄點鎖定 stdOutMin (如 17:15)，起點由迄點倒推進位後的總請假分鐘數 (如 15:45)
+                let newSystemStartMin = stdOutMin - roundedMins;
+                // 若跨過午休 12:30~13:30，額外往前扣 60 分鐘午休
+                if (newSystemStartMin < 13 * 60 + 30 && stdOutMin > 13 * 60 + 30) {
+                  newSystemStartMin -= 60;
+                }
+
+                newSystemText = `${minutesToTime(newSystemStartMin)} ～ ${minutesToTime(stdOutMin)}`;
                 
+                // 舊系統差假單倒推
                 oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
                 targetCheckOut = `${planEarlyCheckOut.value} 即可刷退`;
               }
