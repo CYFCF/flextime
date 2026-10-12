@@ -99,7 +99,7 @@
         </div>
       </div>
 
-      <!-- 電腦版專屬：頂部情境導航切換列 (手機版隱藏) -->
+      <!-- 電腦版專屬：頂部情境導航切換列（用字與手機版保持 100% 一致） -->
       <div class="hidden lg:grid grid-cols-6 gap-2 pt-4 pb-1">
         <button v-for="t in leaveTypes" :key="t.id"
                 @click="selectTab(t.id)"
@@ -108,7 +108,7 @@
                   ? t.activeBg + ' text-white border-transparent shadow-md' 
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-slate-700 hover:bg-slate-50'">
           <i :data-lucide="t.icon" class="w-4 h-4"></i>
-          <span>{{ t.name }}</span>
+          <span>{{ t.shortName }}</span>
         </button>
       </div>
     </header>
@@ -116,8 +116,8 @@
     <!-- 中間主要滾動區：電腦版自動變為雙欄佈局 (grid-cols-2) -->
     <main class="flex-1 overflow-y-auto px-5 lg:px-8 pb-28 lg:pb-8 pt-3 no-scrollbar space-y-4">
       
-      <!-- 當前情境橫幅標籤 -->
-      <div :class="currentTypeData.cardBg" class="p-4 lg:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
+      <!-- 當前情境橫幅標籤（綁定 key 確保切換情境時圖示一定即時更新） -->
+      <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 lg:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
         <div class="space-y-0.5">
           <div class="text-[11px] font-bold uppercase tracking-wider opacity-85">目前選取情境</div>
           <div class="text-xl lg:text-2xl font-black flex items-center gap-2">
@@ -152,11 +152,12 @@
               <label class="block text-xs font-bold text-slate-500 mb-1.5">預計提前刷退時間</label>
               <time-picker-24 v-model="planEarlyCheckOut" color="sky"></time-picker-24>
             </div>
+            <!-- 下方快捷按鈕：14:00、15:00、16:00、16:30 -->
             <div class="grid grid-cols-4 gap-2 pt-1">
-              <button @click="planEarlyCheckOut = '12:15'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">12:15 走</button>
               <button @click="planEarlyCheckOut = '14:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">14:00 走</button>
               <button @click="planEarlyCheckOut = '15:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">15:00 走</button>
               <button @click="planEarlyCheckOut = '16:00'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">16:00 走</button>
+              <button @click="planEarlyCheckOut = '16:30'" class="bouncy-btn py-2 bg-sky-100 text-sky-800 rounded-xl text-xs font-bold">16:30 走</button>
             </div>
           </div>
 
@@ -377,7 +378,7 @@
         const morningCheckIn = ref('08:30');
         const lateCheckIn = ref('09:20');
         const normalCheckIn = ref('08:15');
-        const planEarlyCheckOut = ref('12:10');
+        const planEarlyCheckOut = ref('16:00');
         const fullDayCheckIn = ref('08:00');
         const midLeaveStart = ref('10:00');
         const midLeaveEnd = ref('11:00');
@@ -386,9 +387,12 @@
           return leaveTypes.find(t => t.id === leaveType.value) || leaveTypes[0];
         });
 
+        // 切換頁籤時主動重新渲染 Lucide SVG，確保橫幅與按鈕圖示 100% 同步
         const selectTab = (id) => {
           leaveType.value = id;
-          nextTick(() => lucide.createIcons());
+          nextTick(() => {
+            lucide.createIcons();
+          });
         };
 
         const timeToMinutes = (str) => {
@@ -455,7 +459,7 @@
                 warning = `您於 ${normalCheckIn.value} 到勤，已逾 09:00！逾 9 點請改用「到班前請假」情境辦理。`;
               }
 
-              const stdOutMin = effectiveInMin + 9 * 60; // 滿勤打卡點（含 1 小時午休）
+              const stdOutMin = effectiveInMin + 9 * 60;
 
               if (outMin >= stdOutMin) {
                 hours = 0;
@@ -463,23 +467,20 @@
                 oldSystemInterval = '無須請假';
                 targetCheckOut = `${minutesToTime(stdOutMin)} 即可正常刷退`;
               } else {
-                // 精確計算在勤時間與缺工時數，排除午休 12:30~13:30 重複計算
                 const morningWorkDone = Math.max(0, Math.min(outMin, 12 * 60 + 30) - effectiveInMin);
                 const afternoonWorkDone = Math.max(0, outMin - Math.max(outMin, 13 * 60 + 30));
                 const totalWorkDone = morningWorkDone + afternoonWorkDone;
 
-                const requiredWorkMin = 8 * 60; // 8 小時應在勤工時
+                const requiredWorkMin = 8 * 60;
                 const diffMin = Math.max(0, requiredWorkMin - totalWorkDone);
                 const roundedMins = ceilTo30(diffMin);
                 hours = roundedMins / 60;
 
-                // 判斷上午是否已滿 4 小時（240 分鐘）
                 const fourHoursTargetMin = effectiveInMin + 240;
                 if (outMin < fourHoursTargetMin) {
                   warning = `提醒：上午在勤僅 ${Math.floor(morningWorkDone / 60)} 小時 ${morningWorkDone % 60} 分（未滿 4 小時），未達「下午半日假」門檻，依缺工進位須請假 ${hours} 小時！若待至 ${minutesToTime(fourHoursTargetMin)} 刷退，則下午只需請假 4.0 小時。`;
                 }
 
-                // 新系統區間依實際缺工段標示
                 newSystemText = `${planEarlyCheckOut.value} ～ ${minutesToTime(stdOutMin)}`;
                 oldSystemInterval = mapToOldSystem(hours, 'FROM_END');
                 targetCheckOut = `${planEarlyCheckOut.value} 即可刷退`;
