@@ -532,20 +532,19 @@
               const maxFlex = 9 * 60;
               
               hours = 0;
+              // 全日班新舊系統一致顯示正常出勤（無須請假）
+              newSystemText = '正常出勤 (無須請假)';
               oldSystemInterval = '正常出勤 (無須請假)';
 
               if (arrMin < minFlex) {
                 const outMin = minFlex + 9 * 60;
-                newSystemText = `08:00 ～ ${minutesToTime(outMin)}`;
                 targetCheckOut = `${minutesToTime(outMin)} 即可刷退`;
               } else if (arrMin > maxFlex) {
                 const outMin = arrMin + 9 * 60;
-                newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
                 targetCheckOut = '18:00 (逾09:00請按「到班前請假」處理)';
                 warning = `您輸入的時間為 ${fullDayCheckIn.value}，已超過最晚彈性上班時限 09:00！請點選「到班前請假」計算時數。`;
               } else {
                 const outMin = arrMin + 9 * 60;
-                newSystemText = `${fullDayCheckIn.value} ～ ${minutesToTime(outMin)}`;
                 targetCheckOut = `${minutesToTime(outMin)} 即可刷退`;
               }
               break;
@@ -629,7 +628,6 @@
             const m = Math.min(59, parseInt(val.slice(2, 4), 10));
             emit('update:modelValue', `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
           } else {
-            // 還原為有效值
             e.target.value = props.modelValue || '08:00';
           }
         };
@@ -654,7 +652,6 @@
       },
       template: `
         <div :class="borderClass" class="relative h-14 w-full bg-amber-50/60 dark:bg-slate-800 rounded-2xl border-2 flex items-center justify-between px-4 transition">
-          <!-- 文字輸入框：可自由點選、點擊鍵盤直接鍵入數字 -->
           <input type="text"
                  inputmode="numeric"
                  :value="modelValue"
@@ -663,7 +660,6 @@
                  placeholder="08:30"
                  class="w-full bg-transparent text-xl font-bold font-mono tracking-wider text-slate-800 dark:text-slate-100 outline-none text-left select-text">
 
-          <!-- 點選時鐘圖示：可叫起手機原生 iOS 滾輪與 Android 鐘面 -->
           <button type="button" 
                   @click="triggerPicker"
                   class="p-2 -mr-1 rounded-xl hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition"
@@ -671,7 +667,6 @@
             <i data-lucide="clock" class="w-5 h-5 text-slate-400"></i>
           </button>
 
-          <!-- 隱藏在按鈕下方的原生 input 用於觸發原生滾輪 -->
           <input ref="pickerRef"
                  type="time"
                  :value="modelValue"
