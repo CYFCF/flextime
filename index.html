@@ -5,12 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>差假工時計算器</title>
 
+  <!-- 手機加入主畫面 Icon 與 Favicon 設定 -->
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="差假計算器">
+
   <!-- 避免分享連結/預覽抓取到舊版快取字眼 -->
   <meta name="description" content="差假工時計算器 - 彈性工時與差假系統轉換工具">
   <meta property="og:title" content="差假工時計算器">
   <meta property="og:description" content="差假工時計算器 - 彈性工時與差假系統轉換工具">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://cyfcf.github.io/flextime/">
+  <meta property="og:image" content="https://cyfcf.github.io/flextime/icon.png">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -387,7 +396,6 @@
           return leaveTypes.find(t => t.id === leaveType.value) || leaveTypes[0];
         });
 
-        // 切換頁籤時主動重新渲染 Lucide SVG，確保橫幅與按鈕圖示 100% 同步
         const selectTab = (id) => {
           leaveType.value = id;
           nextTick(() => {
