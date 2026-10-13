@@ -143,8 +143,8 @@
         </div>
       </div>
 
-      <!-- 防呆警示提醒 -->
-      <div v-if="result.warning" class="p-3.5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 text-xs font-bold flex items-start gap-2">
+      <!-- 防呆警示提醒：text-sm (14px) 提升易讀性 -->
+      <div v-if="result.warning" class="p-3.5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 text-sm font-bold flex items-start gap-2.5 leading-relaxed">
         <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
         <span>{{ result.warning }}</span>
       </div>
@@ -185,7 +185,8 @@
               <button @click="addMinutes('lateCheckIn', 30)" class="bouncy-btn py-2 bg-orange-200 text-orange-800 rounded-xl text-xs font-bold">+30分</button>
               <button @click="lateCheckIn = '09:30'" class="bouncy-btn py-2 bg-rose-100 text-rose-700 rounded-xl text-xs font-bold">09:30</button>
             </div>
-            <p class="text-[11px] text-rose-600 dark:text-rose-400 font-medium">
+            <!-- 備註說明：text-xs (12px) -->
+            <p class="text-xs text-rose-600 dark:text-rose-400 font-medium">
               💡 彈性區間：08:00～09:00 上班、17:00～18:00 下班。若 09:00 前到班請使用「提早退勤」。
             </p>
           </div>
@@ -194,6 +195,7 @@
           <div v-if="leaveType === 'HALF_MORNING'" class="text-center py-6 space-y-2">
             <div class="text-4xl">🌤️</div>
             <p class="font-bold text-slate-800 dark:text-slate-200">上午請假 4.0 小時</p>
+            <!-- 備註說明：text-xs (12px) -->
             <p class="text-xs text-slate-500 leading-relaxed">
               下午上班時間固定為 <span class="font-black text-emerald-600">13:30 至 17:30</span>，不具備彈性時段。
             </p>
@@ -209,12 +211,13 @@
               <button @click="morningCheckIn = '08:00'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:00 到</button>
               <button @click="morningCheckIn = '08:30'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 到</button>
             </div>
+            <!-- 備註說明：text-xs (12px) -->
             <div class="p-3 bg-amber-50 dark:bg-slate-800 rounded-2xl text-xs text-amber-800 dark:text-amber-300 font-bold leading-relaxed">
               📢 規定：上午在勤必須「滿四小時」，下午方可請假半日！
             </div>
           </div>
 
-          <!-- 5. 中途請假 (嚴格規範 08:30 ~ 17:30，移除快捷按鈕) -->
+          <!-- 5. 中途請假 (已完全移除備註文字，純淨輸入介面) -->
           <div v-if="leaveType === 'MID_LEAVE'" class="space-y-3">
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -225,10 +228,6 @@
                 <span class="block text-xs font-bold text-slate-500 mb-1.5">請假結束時間</span>
                 <time-picker-24 v-model="midLeaveEnd" color="purple"></time-picker-24>
               </div>
-            </div>
-            <div class="p-2.5 bg-purple-50 dark:bg-slate-800/80 rounded-2xl text-[11px] text-purple-700 dark:text-purple-300 font-medium leading-relaxed">
-              ⚠️ <strong>範圍限制</strong>：僅適用 <strong>08:30 ～ 17:30</strong> 核心區間。<br>
-              若需於 09:00 前請假請使用「到班前請假」，提早離開請使用「到班後請假」（提早退勤）。
             </div>
           </div>
 
@@ -243,6 +242,7 @@
               <button @click="fullDayCheckIn = '08:30'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 打卡</button>
               <button @click="fullDayCheckIn = '09:00'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">09:00 打卡</button>
             </div>
+            <!-- 備註說明：text-xs (12px) -->
             <p class="text-xs text-amber-700 dark:text-amber-400 font-bold">
               💡 彈性區間：08:00～09:00 上班，17:00～18:00 下班。
             </p>
@@ -273,7 +273,7 @@
               <span class="text-sm font-black underline tracking-wide">{{ result.targetCheckOut }}</span>
             </div>
 
-            <p class="text-[11px] text-sky-700/80 dark:text-sky-400/80 pt-0.5">
+            <p class="text-xs text-sky-700/80 dark:text-sky-400/80 pt-0.5">
               請假時數：<strong>{{ result.hours }}</strong> 小時
             </p>
           </div>
@@ -291,7 +291,7 @@
               {{ result.oldSystemInterval }}
             </div>
 
-            <p class="text-[11px] text-amber-700/80 dark:text-amber-400/80 pt-1">
+            <p class="text-xs text-amber-700/80 dark:text-amber-400/80 pt-1">
               請假時數：<strong>{{ result.hours }}</strong> 小時（已跳過 12:30~13:30 午休）
             </p>
           </div>
