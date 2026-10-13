@@ -2,7 +2,7 @@
 <html lang="zh-TW" class="h-full">
 <head>
   <meta charset="UTF-8">
-  <!-- 強制行動裝置等比縮放，防止 Android Chrome 誤判為桌機寬度 -->
+  <!-- 強制行動裝置 1:1 撐滿寬度，避免縮放或過窄 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>差假工時計算器</title>
 
@@ -79,15 +79,15 @@
   </style>
 </head>
 <body class="h-full bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 select-none">
-  <!-- 外層自適應：手機與平板皆為 max-w-md 單欄，電腦寬螢幕 (xl: 1280px 以上) 才展開 -->
-  <div id="app" class="h-full flex flex-col max-w-md xl:max-w-5xl mx-auto relative overflow-hidden bg-amber-50/40 dark:bg-slate-950 shadow-2xl xl:my-4 xl:h-[calc(100vh-2rem)] xl:rounded-3xl xl:border xl:border-slate-200/80 dark:xl:border-slate-800">
+  <!-- 外層自適應：手機端寬度 100% 滿版 (w-full)，電腦寬螢幕 (xl: 1280px 以上) 才限制寬度雙欄置中 -->
+  <div id="app" class="h-full flex flex-col w-full max-w-full xl:max-w-5xl mx-auto relative overflow-hidden bg-amber-50/40 dark:bg-slate-950 shadow-2xl xl:my-4 xl:h-[calc(100vh-2rem)] xl:rounded-3xl xl:border xl:border-slate-200/80 dark:xl:border-slate-800">
     
     <!-- 頂部 Header -->
-    <header class="px-5 xl:px-8 pt-4 pb-3 flex-shrink-0 border-b border-slate-100 dark:border-slate-800/60 xl:bg-white/50 dark:xl:bg-slate-900/50 backdrop-blur-md">
+    <header class="px-4 sm:px-6 xl:px-8 pt-4 pb-3 flex-shrink-0 border-b border-slate-100 dark:border-slate-800/60 xl:bg-white/50 dark:xl:bg-slate-900/50 backdrop-blur-md">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <!-- 俏皮花朵吉祥物 -->
-          <div class="w-10 h-10 rounded-2xl bg-[#FF6B6B] flex items-center justify-center shadow-md shadow-red-500/20 relative">
+          <div class="w-10 h-10 rounded-2xl bg-[#FF6B6B] flex items-center justify-center shadow-md shadow-red-500/20 relative flex-shrink-0">
             <div class="flex gap-1 mascot-eye">
               <div class="w-2.5 h-3.5 bg-white rounded-full flex items-center justify-center relative">
                 <div class="w-1.5 h-1.5 bg-slate-900 rounded-full translate-x-0.5"></div>
@@ -112,7 +112,7 @@
         </div>
       </div>
 
-      <!-- 電腦寬螢幕版專屬：頂部情境導航切換列 (手機與Android一律隱藏) -->
+      <!-- 電腦寬螢幕版專屬：頂部情境導航切換列 -->
       <div class="hidden xl:grid grid-cols-6 gap-2 pt-4 pb-1">
         <button v-for="t in leaveTypes" :key="t.id"
                 @click="selectTab(t.id)"
@@ -126,20 +126,20 @@
       </div>
     </header>
 
-    <!-- 中間主要滾動區 -->
-    <main class="flex-1 overflow-y-auto px-5 xl:px-8 pb-28 xl:pb-8 pt-3 no-scrollbar space-y-4">
+    <!-- 中間主要滾動區：手機端 px-4 滿版自適應 -->
+    <main class="flex-1 overflow-y-auto px-4 sm:px-6 xl:px-8 pb-28 xl:pb-8 pt-3 no-scrollbar space-y-4">
       
       <!-- 當前情境橫幅標籤 -->
-      <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 xl:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
+      <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 sm:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
         <div class="space-y-0.5">
           <div class="text-[11px] font-bold uppercase tracking-wider opacity-85">目前選取情境</div>
-          <div class="text-xl xl:text-2xl font-black flex items-center gap-2">
+          <div class="text-xl sm:text-2xl font-black flex items-center gap-2">
             <span>{{ currentTypeData.name }}</span>
           </div>
-          <div class="text-xs xl:text-sm opacity-90 font-medium">{{ currentTypeData.sub }}</div>
+          <div class="text-xs sm:text-sm opacity-90 font-medium">{{ currentTypeData.sub }}</div>
         </div>
-        <div class="w-12 h-12 xl:w-14 xl:h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-          <i :data-lucide="currentTypeData.icon" class="w-7 h-7 xl:w-8 xl:h-8 text-white"></i>
+        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center flex-shrink-0">
+          <i :data-lucide="currentTypeData.icon" class="w-7 h-7 sm:w-8 sm:h-8 text-white"></i>
         </div>
       </div>
 
@@ -149,11 +149,11 @@
         <span>{{ result.warning }}</span>
       </div>
 
-      <!-- 核心區塊：手機/Android為上下單欄，電腦寬螢幕 (xl) 才雙欄並排 -->
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 items-start">
+      <!-- 核心區域：手機 100% 寬度單欄，電腦寬螢幕 (xl) 雙欄 -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 items-start w-full">
         
-        <!-- 輸入面板卡片 -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 xl:p-6 shadow-sm border border-orange-100/60 dark:border-slate-800 space-y-4">
+        <!-- 左欄：操作輸入面板卡片 -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 xl:p-6 shadow-sm border border-orange-100/60 dark:border-slate-800 space-y-4 w-full">
           
           <!-- 1. 到班後請假 -->
           <div v-if="leaveType === 'EARLY_LEAVE'" class="space-y-3">
@@ -246,11 +246,11 @@
 
         </div>
 
-        <!-- 雙系統計算結果對照卡 -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 xl:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
+        <!-- 右欄：雙系統計算成果對照卡 -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 xl:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4 w-full">
           
-          <!-- 新系統區塊（方案 A：迄點對齊滿勤下班，起點倒推滿時數） -->
-          <div class="p-4 xl:p-5 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
+          <!-- 新系統區塊 -->
+          <div class="p-4 sm:p-5 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-black text-sky-800 dark:text-sky-400">新系統【差假單 KEY 法】</span>
               <span class="text-xs font-bold text-sky-700 dark:text-sky-300">
@@ -258,7 +258,7 @@
               </span>
             </div>
             
-            <div class="text-2xl xl:text-3xl font-black font-mono text-sky-950 dark:text-sky-200 my-1">
+            <div class="text-2xl sm:text-3xl font-black font-mono text-sky-950 dark:text-sky-200 my-1">
               {{ result.newSystemText }}
             </div>
 
@@ -275,7 +275,7 @@
           </div>
 
           <!-- 舊系統填單區塊 -->
-          <div class="p-4 xl:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative space-y-2">
+          <div class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-black text-amber-800 dark:text-amber-400">舊系統【差假單 KEY 法】</span>
               <span class="text-xs font-bold text-amber-700 dark:text-amber-300">
@@ -283,7 +283,7 @@
               </span>
             </div>
             
-            <div class="text-2xl xl:text-3xl font-black font-mono text-amber-900 dark:text-amber-200 my-1">
+            <div class="text-2xl sm:text-3xl font-black font-mono text-amber-900 dark:text-amber-200 my-1">
               {{ result.oldSystemInterval }}
             </div>
 
@@ -298,11 +298,11 @@
 
     </main>
 
-    <!-- 行動裝置專屬：最下方主選單 (電腦寬螢幕 xl 以上才隱藏) -->
-    <nav class="xl:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
+    <!-- 手機版專屬：最下方主選單 (寬度 w-full 滿版並平均分配) -->
+    <nav class="xl:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg w-full">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
-              class="bouncy-btn flex flex-col items-center justify-center py-1 px-1.5 rounded-2xl transition relative"
+              class="bouncy-btn flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-2xl transition relative"
               :class="leaveType === t.id ? 'scale-105' : 'opacity-60 hover:opacity-100'">
         
         <div class="w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300"
