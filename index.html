@@ -214,7 +214,7 @@
             </div>
           </div>
 
-          <!-- 5. 中途請假 (嚴格規範 08:30 ~ 17:30) -->
+          <!-- 5. 中途請假 (嚴格規範 08:30 ~ 17:30，移除快捷按鈕) -->
           <div v-if="leaveType === 'MID_LEAVE'" class="space-y-3">
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -226,14 +226,9 @@
                 <time-picker-24 v-model="midLeaveEnd" color="purple"></time-picker-24>
               </div>
             </div>
-            <div class="grid grid-cols-3 gap-2 pt-1">
-              <button @click="midLeaveStart = '09:30'; midLeaveEnd = '11:30'" class="bouncy-btn py-2 bg-purple-100 text-purple-800 rounded-xl text-xs font-bold">上午 2 小時</button>
-              <button @click="midLeaveStart = '14:00'; midLeaveEnd = '16:00'" class="bouncy-btn py-2 bg-purple-100 text-purple-800 rounded-xl text-xs font-bold">下午 2 小時</button>
-              <button @click="midLeaveStart = '10:00'; midLeaveEnd = '11:00'" class="bouncy-btn py-2 bg-purple-100 text-purple-800 rounded-xl text-xs font-bold">1 小時外出</button>
-            </div>
             <div class="p-2.5 bg-purple-50 dark:bg-slate-800/80 rounded-2xl text-[11px] text-purple-700 dark:text-purple-300 font-medium leading-relaxed">
               ⚠️ <strong>範圍限制</strong>：僅適用 <strong>08:30 ～ 17:30</strong> 核心區間。<br>
-              若需於 09:00 前請假請使用「到班前請假」，提早離開請使用「到班後請假」。
+              若需於 09:00 前請假請使用「到班前請假」，提早離開請使用「到班後請假」（提早退勤）。
             </div>
           </div>
 
@@ -587,7 +582,7 @@
                 sMin = coreStart;
               }
               if (eMin > coreEnd) {
-                warning = `「中途請假」僅適用 08:30～17:30 核心區間！若提早離開請改用「到班後請假」。已自動將迄點以 17:30 計算。`;
+                warning = `「中途請假」僅適用 08:30～17:30 核心區間！若提早離開請改用「到班後請假」（提早退勤）。已自動將迄點以 17:30 計算。`;
                 eMin = coreEnd;
               }
 
@@ -706,6 +701,8 @@
             const h = Math.min(23, parseInt(val.slice(0, 2), 10));
             const m = Math.min(59, parseInt(val.slice(2, 4), 10));
             emit('update:modelValue', `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+          } else {
+            // 保留原本正在輸入的數字
           }
         };
 
