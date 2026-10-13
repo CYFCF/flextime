@@ -2,10 +2,11 @@
 <html lang="zh-TW" class="h-full">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- 強制行動裝置等比縮放，防止 Android Chrome 誤判為桌機寬度 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>差假工時計算器</title>
 
-  <!-- 手機加入主畫面 Icon 與 Favicon 設定 (完整名稱修正與防快取) -->
+  <!-- 手機加入主畫面 Icon 與 Favicon 設定 -->
   <link rel="icon" type="image/png" href="icon.png?v=3">
   <link rel="shortcut icon" href="icon.png?v=3">
   <link rel="apple-touch-icon" href="icon.png?v=3">
@@ -14,6 +15,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="差假工時計算器">
+  <meta name="mobile-web-app-capable" content="yes">
 
   <!-- 社群與 Open Graph 圖示 -->
   <meta name="description" content="差假工時計算器 - 彈性工時與差假系統轉換工具">
@@ -77,11 +79,11 @@
   </style>
 </head>
 <body class="h-full bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 select-none">
-  <!-- 外層自適應：手機為 max-w-md，電腦端展開為 max-w-5xl 寬螢幕比例 -->
-  <div id="app" class="h-full flex flex-col max-w-md lg:max-w-5xl mx-auto relative overflow-hidden bg-amber-50/40 dark:bg-slate-950 shadow-2xl lg:my-4 lg:h-[calc(100vh-2rem)] lg:rounded-3xl lg:border lg:border-slate-200/80 dark:lg:border-slate-800">
+  <!-- 外層自適應：手機與平板皆為 max-w-md 單欄，電腦寬螢幕 (xl: 1280px 以上) 才展開 -->
+  <div id="app" class="h-full flex flex-col max-w-md xl:max-w-5xl mx-auto relative overflow-hidden bg-amber-50/40 dark:bg-slate-950 shadow-2xl xl:my-4 xl:h-[calc(100vh-2rem)] xl:rounded-3xl xl:border xl:border-slate-200/80 dark:xl:border-slate-800">
     
     <!-- 頂部 Header -->
-    <header class="px-5 lg:px-8 pt-4 pb-3 flex-shrink-0 border-b border-slate-100 dark:border-slate-800/60 lg:bg-white/50 dark:lg:bg-slate-900/50 backdrop-blur-md">
+    <header class="px-5 xl:px-8 pt-4 pb-3 flex-shrink-0 border-b border-slate-100 dark:border-slate-800/60 xl:bg-white/50 dark:xl:bg-slate-900/50 backdrop-blur-md">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <!-- 俏皮花朵吉祥物 -->
@@ -97,7 +99,7 @@
           </div>
           <div>
             <span class="text-xs font-black tracking-wider text-rose-500 uppercase">Leave Assistant</span>
-            <h1 class="text-lg lg:text-xl font-black text-slate-850 dark:text-white leading-tight">差假工時計算器</h1>
+            <h1 class="text-lg xl:text-xl font-black text-slate-850 dark:text-white leading-tight">差假工時計算器</h1>
           </div>
         </div>
 
@@ -110,8 +112,8 @@
         </div>
       </div>
 
-      <!-- 電腦版專屬：頂部情境導航切換列 -->
-      <div class="hidden lg:grid grid-cols-6 gap-2 pt-4 pb-1">
+      <!-- 電腦寬螢幕版專屬：頂部情境導航切換列 (手機與Android一律隱藏) -->
+      <div class="hidden xl:grid grid-cols-6 gap-2 pt-4 pb-1">
         <button v-for="t in leaveTypes" :key="t.id"
                 @click="selectTab(t.id)"
                 class="bouncy-btn py-2.5 px-3 rounded-2xl font-black text-xs flex items-center justify-center gap-2 transition border"
@@ -125,19 +127,19 @@
     </header>
 
     <!-- 中間主要滾動區 -->
-    <main class="flex-1 overflow-y-auto px-5 lg:px-8 pb-28 lg:pb-8 pt-3 no-scrollbar space-y-4">
+    <main class="flex-1 overflow-y-auto px-5 xl:px-8 pb-28 xl:pb-8 pt-3 no-scrollbar space-y-4">
       
       <!-- 當前情境橫幅標籤 -->
-      <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 lg:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
+      <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 xl:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
         <div class="space-y-0.5">
           <div class="text-[11px] font-bold uppercase tracking-wider opacity-85">目前選取情境</div>
-          <div class="text-xl lg:text-2xl font-black flex items-center gap-2">
+          <div class="text-xl xl:text-2xl font-black flex items-center gap-2">
             <span>{{ currentTypeData.name }}</span>
           </div>
-          <div class="text-xs lg:text-sm opacity-90 font-medium">{{ currentTypeData.sub }}</div>
+          <div class="text-xs xl:text-sm opacity-90 font-medium">{{ currentTypeData.sub }}</div>
         </div>
-        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-          <i :data-lucide="currentTypeData.icon" class="w-7 h-7 lg:w-8 lg:h-8 text-white"></i>
+        <div class="w-12 h-12 xl:w-14 xl:h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+          <i :data-lucide="currentTypeData.icon" class="w-7 h-7 xl:w-8 xl:h-8 text-white"></i>
         </div>
       </div>
 
@@ -147,11 +149,11 @@
         <span>{{ result.warning }}</span>
       </div>
 
-      <!-- 電腦版雙欄佈局 -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start">
+      <!-- 核心區塊：手機/Android為上下單欄，電腦寬螢幕 (xl) 才雙欄並排 -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-6 items-start">
         
-        <!-- 左欄：操作輸入面板卡片 -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 lg:p-6 shadow-sm border border-orange-100/60 dark:border-slate-800 space-y-4">
+        <!-- 輸入面板卡片 -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 xl:p-6 shadow-sm border border-orange-100/60 dark:border-slate-800 space-y-4">
           
           <!-- 1. 到班後請假 -->
           <div v-if="leaveType === 'EARLY_LEAVE'" class="space-y-3">
@@ -244,11 +246,11 @@
 
         </div>
 
-        <!-- 右欄：雙系統計算成果對照卡 -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 lg:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
+        <!-- 雙系統計算結果對照卡 -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 xl:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
           
           <!-- 新系統區塊（方案 A：迄點對齊滿勤下班，起點倒推滿時數） -->
-          <div class="p-4 lg:p-5 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
+          <div class="p-4 xl:p-5 rounded-2xl bg-sky-500/10 border-2 border-sky-400/40 relative space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-black text-sky-800 dark:text-sky-400">新系統【差假單 KEY 法】</span>
               <span class="text-xs font-bold text-sky-700 dark:text-sky-300">
@@ -256,7 +258,7 @@
               </span>
             </div>
             
-            <div class="text-2xl lg:text-3xl font-black font-mono text-sky-950 dark:text-sky-200 my-1">
+            <div class="text-2xl xl:text-3xl font-black font-mono text-sky-950 dark:text-sky-200 my-1">
               {{ result.newSystemText }}
             </div>
 
@@ -273,7 +275,7 @@
           </div>
 
           <!-- 舊系統填單區塊 -->
-          <div class="p-4 lg:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative space-y-2">
+          <div class="p-4 xl:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-400/40 relative space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-black text-amber-800 dark:text-amber-400">舊系統【差假單 KEY 法】</span>
               <span class="text-xs font-bold text-amber-700 dark:text-amber-300">
@@ -281,7 +283,7 @@
               </span>
             </div>
             
-            <div class="text-2xl lg:text-3xl font-black font-mono text-amber-900 dark:text-amber-200 my-1">
+            <div class="text-2xl xl:text-3xl font-black font-mono text-amber-900 dark:text-amber-200 my-1">
               {{ result.oldSystemInterval }}
             </div>
 
@@ -296,8 +298,8 @@
 
     </main>
 
-    <!-- 手機版專屬：最下方主選單 (電腦版自動隱藏 lg:hidden) -->
-    <nav class="lg:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
+    <!-- 行動裝置專屬：最下方主選單 (電腦寬螢幕 xl 以上才隱藏) -->
+    <nav class="xl:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
               class="bouncy-btn flex flex-col items-center justify-center py-1 px-1.5 rounded-2xl transition relative"
