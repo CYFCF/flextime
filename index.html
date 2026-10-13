@@ -185,6 +185,9 @@
               <button @click="addMinutes('lateCheckIn', 30)" class="bouncy-btn py-2 bg-orange-200 text-orange-800 rounded-xl text-xs font-bold">+30分</button>
               <button @click="lateCheckIn = '09:30'" class="bouncy-btn py-2 bg-rose-100 text-rose-700 rounded-xl text-xs font-bold">09:30</button>
             </div>
+            <p class="text-[11px] text-rose-600 dark:text-rose-400 font-medium">
+              💡 彈性區間：08:00～09:00 上班、17:00～18:00 下班。若 09:00 前到班請使用「提早退勤」。
+            </p>
           </div>
 
           <!-- 3. 上午休假 -->
@@ -522,13 +525,22 @@
 
             case 'LATE_ARRIVE': {
               const arrMin = timeToMinutes(lateCheckIn.value);
-              const limitMin = 9 * 60;
+              const limitMin = 9 * 60; // 09:00
+
+              // 防呆判斷：若於 09:00 前到班 (例如 07:45 或 08:30)
               if (arrMin <= limitMin) {
                 hours = 0;
-                newSystemText = '00:00 ～ 00:00';
+                newSystemText = '正常出勤 (無須請假)';
                 oldSystemInterval = '無須請假';
-                targetCheckOut = `${minutesToTime(arrMin + 9 * 60)} 即可刷退`;
+                
+                // 若早於 08:00 到班，自 08:00 起算至 17:00
+                const effectiveStart = Math.max(8 * 60, arrMin);
+                const standardLeave = effectiveStart + 9 * 60;
+                targetCheckOut = `${minutesToTime(standardLeave)} 即可正常刷退`;
+                
+                warning = `您輸入的到班時間為 ${lateCheckIn.value}（已在 09:00 前出勤），彈性上班為 08:00～09:00、彈性下班為 17:00～18:00，無須使用到班前請假！若欲提前離開，請改點選「到班後請假（提早退勤）」情境。`;
               } else {
+                // 逾 09:00 正常計算請假
                 const diffMin = arrMin - limitMin;
                 const roundedMins = ceilTo30(diffMin);
                 hours = roundedMins / 60;
