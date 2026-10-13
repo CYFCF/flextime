@@ -129,7 +129,7 @@
     <!-- 中間主要滾動區 -->
     <main class="flex-1 overflow-y-auto px-4 sm:px-6 xl:px-8 pb-28 xl:pb-8 pt-3 no-scrollbar space-y-4">
       
-      <!-- 當前情境橫幅標籤（小標底線至少 12px） -->
+      <!-- 當前情境橫幅標籤 -->
       <div :key="'banner-' + currentTypeData.id" :class="currentTypeData.cardBg" class="p-4 sm:p-5 rounded-3xl text-white shadow-md flex items-center justify-between transition-colors duration-300">
         <div class="space-y-0.5">
           <div class="text-xs font-bold uppercase tracking-wider opacity-90">目前選取情境</div>
@@ -143,7 +143,7 @@
         </div>
       </div>
 
-      <!-- 防呆警示提醒：14px 保持醒目清晰 -->
+      <!-- 防呆警示提醒：14px (text-sm) -->
       <div v-if="result.warning" class="p-3.5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 text-sm font-bold flex items-start gap-2.5 leading-relaxed">
         <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
         <span>{{ result.warning }}</span>
@@ -185,7 +185,6 @@
               <button @click="addMinutes('lateCheckIn', 30)" class="bouncy-btn py-2 bg-orange-200 text-orange-800 rounded-xl text-xs font-bold">+30分</button>
               <button @click="lateCheckIn = '09:30'" class="bouncy-btn py-2 bg-rose-100 text-rose-700 rounded-xl text-xs font-bold">09:30</button>
             </div>
-            <!-- 備註說明：12px (text-xs) -->
             <p class="text-xs text-rose-600 dark:text-rose-400 font-medium leading-relaxed">
               💡 彈性區間：08:00～09:00 上班、17:00～18:00 下班。若 09:00 前到班請使用「提早退勤」。
             </p>
@@ -195,7 +194,6 @@
           <div v-if="leaveType === 'HALF_MORNING'" class="text-center py-6 space-y-2">
             <div class="text-4xl">🌤️</div>
             <p class="font-bold text-slate-800 dark:text-slate-200">上午請假 4.0 小時</p>
-            <!-- 備註說明：12px (text-xs) -->
             <p class="text-xs text-slate-500 leading-relaxed">
               下午上班時間固定為 <span class="font-black text-emerald-600">13:30 至 17:30</span>，不具備彈性時段。
             </p>
@@ -211,7 +209,6 @@
               <button @click="morningCheckIn = '08:00'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:00 到</button>
               <button @click="morningCheckIn = '08:30'" class="bouncy-btn flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 到</button>
             </div>
-            <!-- 備註說明：12px (text-xs) -->
             <div class="p-3 bg-amber-50 dark:bg-slate-800 rounded-2xl text-xs text-amber-800 dark:text-amber-300 font-bold leading-relaxed">
               📢 規定：上午在勤必須「滿四小時」，下午方可請假半日！
             </div>
@@ -238,11 +235,10 @@
             </label>
             <time-picker-24 v-model="fullDayCheckIn" color="amber"></time-picker-24>
             <div class="grid grid-cols-3 gap-2 pt-1">
-              <button @click="fullDayCheckIn = '07:55'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">07:55 打卡</button>
+              <button @click="fullDayCheckIn = '08:00'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:00 打卡</button>
               <button @click="fullDayCheckIn = '08:30'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">08:30 打卡</button>
               <button @click="fullDayCheckIn = '09:00'" class="bouncy-btn py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-bold">09:00 打卡</button>
             </div>
-            <!-- 備註說明：12px (text-xs) -->
             <p class="text-xs text-amber-700 dark:text-amber-400 font-bold">
               💡 彈性區間：08:00～09:00 上班，17:00～18:00 下班。
             </p>
@@ -273,8 +269,8 @@
               <span class="text-sm font-black underline tracking-wide">{{ result.targetCheckOut }}</span>
             </div>
 
-            <!-- 備註：12px (text-xs) -->
-            <p class="text-xs text-sky-700/80 dark:text-sky-400/80 pt-0.5">
+            <!-- 請假時數：調整為 text-sm (14px) 提升易讀性 -->
+            <p class="text-sm text-sky-700/90 dark:text-sky-400/90 pt-0.5">
               請假時數：<strong>{{ result.hours }}</strong> 小時
             </p>
           </div>
@@ -292,8 +288,8 @@
               {{ result.oldSystemInterval }}
             </div>
 
-            <!-- 備註：12px (text-xs) -->
-            <p class="text-xs text-amber-700/80 dark:text-amber-400/80 pt-1">
+            <!-- 請假時數：調整為 text-sm (14px) 提升易讀性 -->
+            <p class="text-sm text-amber-700/90 dark:text-amber-400/90 pt-1">
               請假時數：<strong>{{ result.hours }}</strong> 小時（已跳過 12:30~13:30 午休）
             </p>
           </div>
@@ -304,7 +300,7 @@
 
     </main>
 
-    <!-- 手機版專屬：最下方主選單（文字由 10px 提升為 12px text-xs） -->
+    <!-- 手機版專屬：最下方主選單 -->
     <nav class="xl:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-1 py-2 flex justify-around items-center z-30 shadow-lg w-full">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
@@ -591,7 +587,7 @@
               if (eMin <= sMin) {
                 warning = '請假結束時間必須晚於開始時間！';
                 hours = 0;
-                newSystemText = '時間區間有誤';
+                newSystemText = '時間區格有誤';
                 oldSystemInterval = '無';
               } else {
                 const lunchStart = 12 * 60 + 30;
