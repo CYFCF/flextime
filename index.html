@@ -126,7 +126,7 @@
       </div>
     </header>
 
-    <!-- 中間主要滾動區：手機端 px-4 滿版自適應 -->
+    <!-- 中間主要滾動區 -->
     <main class="flex-1 overflow-y-auto px-4 sm:px-6 xl:px-8 pb-28 xl:pb-8 pt-3 no-scrollbar space-y-4">
       
       <!-- 當前情境橫幅標籤 -->
@@ -211,7 +211,7 @@
             </div>
           </div>
 
-          <!-- 5. 中途請假 -->
+          <!-- 5. 中途請假 (嚴格規範 08:30 ~ 17:30) -->
           <div v-if="leaveType === 'MID_LEAVE'" class="space-y-3">
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -223,9 +223,15 @@
                 <time-picker-24 v-model="midLeaveEnd" color="purple"></time-picker-24>
               </div>
             </div>
-            <p class="text-[11px] text-purple-600 dark:text-purple-400 font-semibold text-center">
-              舊系統 KEY 法與實際請假時間相同（自動避開 12:30~13:30 午休）
-            </p>
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              <button @click="midLeaveStart = '09:30'; midLeaveEnd = '11:30'" class="bouncy-btn py-2 bg-purple-100 text-purple-800 rounded-xl text-xs font-bold">上午 2 小時</button>
+              <button @click="midLeaveStart = '14:00'; midLeaveEnd = '16:00'" class="bouncy-btn py-2 bg-purple-100 text-purple-800 rounded-xl text-xs font-bold">下午 2 小時</button>
+              <button @click="midLeaveStart = '10:00'; midLeaveEnd = '11:00'" class="bouncy-btn py-2 bg-purple-100 text-purple-800 rounded-xl text-xs font-bold">1 小時外出</button>
+            </div>
+            <div class="p-2.5 bg-purple-50 dark:bg-slate-800/80 rounded-2xl text-[11px] text-purple-700 dark:text-purple-300 font-medium leading-relaxed">
+              ⚠️ <strong>範圍限制</strong>：僅適用 <strong>08:30 ～ 17:30</strong> 核心區間。<br>
+              08:00~09:00 及 17:00~18:00 屬彈性上下班，請改用「到班前請假」或「提早退勤」。
+            </div>
           </div>
 
           <!-- 6. 全日班 -->
@@ -298,7 +304,7 @@
 
     </main>
 
-    <!-- 手機版專屬：最下方主選單 (寬度 w-full 滿版並平均分配) -->
+    <!-- 手機版專屬：最下方主選單 -->
     <nav class="xl:hidden absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-2 py-2 flex justify-around items-center z-30 shadow-lg w-full">
       <button v-for="t in leaveTypes" :key="t.id"
               @click="selectTab(t.id)"
@@ -370,7 +376,7 @@
             id: 'MID_LEAVE', 
             name: '中途請假', 
             shortName: '中途請假', 
-            sub: '舊系統同實際時間，避開12:30~13:30',
+            sub: '限08:30~17:30核心區間，彈性時段不適用',
             icon: 'hourglass',
             activeBg: 'bg-[#9B89B3]',
             cardBg: 'bg-gradient-to-r from-[#9B89B3] to-[#735D78]'
@@ -395,6 +401,7 @@
         const planEarlyCheckOut = ref('16:15');
         
         const fullDayCheckIn = ref('08:00');
+        // 中途請假預設於標準區間內
         const midLeaveStart = ref('10:00');
         const midLeaveEnd = ref('11:00');
 
@@ -558,8 +565,22 @@
             case 'MID_LEAVE': {
               let sMin = timeToMinutes(midLeaveStart.value);
               let eMin = timeToMinutes(midLeaveEnd.value);
+
+              const coreStart = 8 * 60 + 30; // 08:30
+              const coreEnd = 17 * 60 + 30;  // 17:30
+
+              // 區間範圍合法性防呆
+              if (sMin < coreStart) {
+                warning = `「中途請假」僅適用 08:30～17:30 區間！08:00～09:00 為彈性時段，遲到請使用「到班前請假」。已自動將起點以 08:30 計算。`;
+                sMin = coreStart;
+              }
+              if (eMin > coreEnd) {
+                warning = `「中途請假」僅適用 08:30～17:30 區間！17:00～18:00 為彈性時段，提早離開請使用「到班後請假」。已自動將迄點以 17:30 計算。`;
+                eMin = coreEnd;
+              }
+
               if (eMin <= sMin) {
-                warning = '結束時間必須晚於開始時間！';
+                warning = '請假結束時間必須晚於開始時間！';
                 hours = 0;
                 newSystemText = '時間區間有誤';
                 oldSystemInterval = '無';
@@ -574,11 +595,11 @@
                 const roundedMins = ceilTo30(rawDuration);
                 hours = roundedMins / 60;
 
-                newSystemText = `${midLeaveStart.value} ～ ${midLeaveEnd.value}`;
-                oldSystemInterval = `${midLeaveStart.value} ～ ${midLeaveEnd.value}`;
+                newSystemText = `${minutesToTime(sMin)} ～ ${minutesToTime(eMin)}`;
+                oldSystemInterval = `${minutesToTime(sMin)} ～ ${minutesToTime(eMin)}`;
 
                 if (overlap > 0) {
-                  warning = '請假區間包含 12:30～13:30 午休時段，系統已自動扣除該 1 小時休息時間。';
+                  warning = (warning ? warning + '；' : '') + '請假區間包含 12:30～13:30 午休時段，系統已自動扣除該 1 小時休息時間。';
                 }
               }
               break;
